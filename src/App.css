@@ -720,6 +720,19 @@
   font-size: 0.9rem;
 }
 
+.evaluation-student {
+  margin-bottom: 0.5rem;
+}
+
+.student-badge {
+  background: linear-gradient(135deg, #0891b2, #059669);
+  color: #ffffff;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .evaluation-scores {
   display: flex;
   gap: 0.5rem;

@@ -501,6 +501,11 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                         {new Date(evaluation.created_at).toLocaleDateString('cs-CZ')}
                       </span>
                     </div>
+                    {evaluation.student_name && (
+                      <div className="evaluation-student">
+                        <span className="student-badge">Student: {evaluation.student_name}</span>
+                      </div>
+                    )}
                     <div className="evaluation-scores">
                       <span className="score-badge">Skóre: {evaluation.score}/10</span>
                       <span className="grade-badge">Známka: {evaluation.grade}/5</span>
