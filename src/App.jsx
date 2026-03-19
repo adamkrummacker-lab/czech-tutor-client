@@ -27,6 +27,11 @@ export default function App() {
   })
 
   useEffect(() => {
+    const theme = user?.preferences?.theme || 'dark'
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [user?.preferences?.theme])
+
+  useEffect(() => {
     if (!token) return
     fetch(`${API}/api/daily-tip`, { headers: authHeaders() })
       .then(r => r.json())
