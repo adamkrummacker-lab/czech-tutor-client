@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import FinalTest from './pages/FinalTest'
 import Login from './pages/Login'
-import TeacherDashboardSimple from './pages/TeacherDashboardSimple'
+import TeacherDashboardFresh from './pages/TeacherDashboardFresh'
 import TeacherDashboard from './pages/TeacherDashboard'
 import StudentDashboard from './pages/StudentDashboard'
 import Chat from './pages/Chat'
@@ -111,7 +111,7 @@ export default function App() {
 
       <main className="main">
         {page === 'dashboard' && user.role === 'teacher' && (
-          <TeacherDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} />
+          <TeacherDashboardFresh api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} />
         )}
         {page === 'dashboard' && user.role === 'student' && (
           <StudentDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} />
