@@ -169,6 +169,21 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
     }
   }
 
+  const retryMessage = async (messageId) => {
+    try {
+      const res = await fetch(`${api}/api/chat/${topic.id}/retry`, {
+        method: 'POST',
+        headers: authHeaders(),
+      })
+      const data = await res.json()
+      if (data.reply) {
+        setMessages(prev => [...prev, { id: data.assistantMessageId, role: 'assistant', content: data.reply, timestamp: new Date().toISOString(), reactions: [] }])
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   const evaluate = async () => {
     setEvaluating(true)
     try {
@@ -370,12 +385,17 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
                   {new Date(msg.timestamp).toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })}
                 </span>
                 {msg.role === 'assistant' && (
-                  <button
-                    className={`btn-speak ${speakingMsgId === i ? 'speaking' : ''}`}
-                    onClick={() => speakingMsgId === i ? stopSpeaking() : speakText(msg.content, i)}
-                  >
-                    {speakingMsgId === i ? '⏹️' : '🔊'}
-                  </button>
+                  <>
+                    <button
+                      className={`btn-speak ${speakingMsgId === i ? 'speaking' : ''}`}
+                      onClick={() => speakingMsgId === i ? stopSpeaking() : speakText(msg.content, i)}
+                    >
+                      {speakingMsgId === i ? '⏹️' : '🔊'}
+                    </button>
+                    <button className="btn-retry" onClick={() => retryMessage(msg.id)}>
+                      🔁 Zopakovat
+                    </button>
+                  </>
                 )}
               </div>
             </div>
