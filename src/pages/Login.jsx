@@ -75,8 +75,7 @@ export default function Login({ api, onLogin }) {
 
         {!isRegister && (
           <div className="login-hint">
-            <p>Učitel: <code>ucitel</code> / <code>ucitel123</code></p>
-            <p>Žák: <code>zak</code> / <code>zak123</code></p>
+              <p>Učitel: <code>ucitel</code> / <code>ucitel123</code></p>
           </div>
         )}
         {isRegister && (

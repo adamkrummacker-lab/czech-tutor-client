@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
 
-export default function Chat({ api, user, token, authHeaders, topic, viewingStudent }) {
+export default function Chat({ api, user, token, authHeaders, topic, viewingStudent, onGoToFinalTest }) {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
@@ -186,6 +186,11 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
           setXpNotif(`+15 XP za odevzdání! Celkem: ${data.xp} XP`)
           setTimeout(() => setXpNotif(null), 3000)
         }
+        setTimeout(() => {
+          if (window.confirm('Gratuluji k dokončení lekce! Chceš si udělat závěrečný test?')) {
+            onGoToFinalTest && onGoToFinalTest()
+          }
+        }, 500)
       }
     } catch {
       alert('Chyba při odevzdání.')

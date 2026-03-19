@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import FinalTest from './pages/FinalTest'
 import Login from './pages/Login'
 import TeacherDashboard from './pages/TeacherDashboard'
 import StudentDashboard from './pages/StudentDashboard'
@@ -76,13 +77,16 @@ export default function App() {
           <StudentDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} />
         )}
         {page === 'chat' && (
-          <Chat api={API} user={user} token={token} authHeaders={authHeaders} topic={activeTopic} viewingStudent={viewingStudent} />
+          <Chat api={API} user={user} token={token} authHeaders={authHeaders} topic={activeTopic} viewingStudent={viewingStudent} onGoToFinalTest={() => setPage('finaltest')} />
         )}
         {page === 'vocabulary' && (
           <Vocabulary api={API} user={user} token={token} authHeaders={authHeaders} />
         )}
         {page === 'stats' && (
           <Stats api={API} user={user} token={token} authHeaders={authHeaders} />
+        )}
+        {page === 'finaltest' && (
+          <FinalTest />
         )}
       </main>
     </div>
