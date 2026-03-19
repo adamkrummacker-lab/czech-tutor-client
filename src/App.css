@@ -626,6 +626,54 @@
   margin: 0.5rem 0;
 }
 
+/* === STUDENT LECTURES === */
+.lectures-section {
+  margin-top: 2rem;
+}
+
+.lectures-section h3 {
+  color: #ffffff;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.lectures-list .lecture-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.lectures-list .lecture-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.lectures-list .lecture-header h4 {
+  color: #60a5fa !important;
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.lectures-list .lecture-content {
+  color: #e2e8f0;
+  line-height: 1.6;
+  font-size: 1rem;
+  white-space: pre-wrap;
+  margin-bottom: 1rem;
+}
+
+.lectures-list .lecture-meta {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 0.5rem;
+}
+
 /* === LECTURE ASSIGNMENTS === */
 .assignment-form {
   background: rgba(255, 255, 255, 0.08);

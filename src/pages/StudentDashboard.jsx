@@ -4,6 +4,7 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
   const [topics, setTopics] = useState([])
   const [gamification, setGamification] = useState({ xp: 0, streak: 0, badges: [], allBadges: [] })
   const [classInfo, setClassInfo] = useState(null)
+  const [lectures, setLectures] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
 
@@ -13,14 +14,16 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
       setLoadError(null)
       const headers = { 'Authorization': `Bearer ${token}` }
       try {
-        const [t, g, c] = await Promise.all([
+        const [t, g, c, l] = await Promise.all([
           fetch(`${api}/api/topics`, { headers }).then(r => r.json()),
           fetch(`${api}/api/gamification`, { headers }).then(r => r.json()),
           fetch(`${api}/api/classes/me`, { headers }).then(r => r.json()),
+          fetch(`${api}/api/my-lectures`, { headers }).then(r => r.json()),
         ])
         setTopics(t)
         setGamification(g)
         setClassInfo(c)
+        setLectures(l)
       } catch (err) {
         setLoadError('Chyba při načítání dat. Zkus stránku obnovit.')
       } finally {
@@ -74,11 +77,41 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
         <div className="badges-grid">
           {gamification.allBadges.map(b => (
             <div key={b.key} className={`badge-card ${b.earned ? 'earned' : 'locked'}`} title={b.desc}>
-              <span className="badge-emoji">{b.emoji}</span>
-              <span className="badge-name">{b.name}</span>
+              <div className="badge-emoji">{b.earned ? b.emoji : '🔒'}</div>
+              <div className="badge-name">{b.name}</div>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Assigned Lectures */}
+      <div className="lectures-section">
+        <h3>📚 Přiřazené přednášky</h3>
+        {lectures.length === 0 ? (
+          <div className="empty-state">
+            <p>📚 Zatím nemáte žádné přiřazené přednášky.</p>
+            <p>Tvoji učitelé ti zde brzy přiřadí studijní materiály.</p>
+          </div>
+        ) : (
+          <div className="lectures-list">
+            {lectures.map(lecture => (
+              <div key={lecture.id} className="lecture-card">
+                <div className="lecture-header">
+                  <h4>{lecture.title}</h4>
+                  {lecture.topic_title && (
+                    <span className="lecture-topic">📚 {lecture.topic_title}</span>
+                  )}
+                </div>
+                <div className="lecture-content">
+                  {lecture.content}
+                </div>
+                <div className="lecture-meta">
+                  Přiřazeno: {new Date(lecture.created_at).toLocaleDateString('cs-CZ')}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Topics */}
