@@ -11,6 +11,9 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [minMessages, setMinMessages] = useState(10)
   const [newClassName, setNewClassName] = useState('')
   const [creatingClass, setCreatingClass] = useState(false)
+  const [classMessage, setClassMessage] = useState(null)
+  const [classMessageType, setClassMessageType] = useState('success')
+  const [copiedCode, setCopiedCode] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showTemplates, setShowTemplates] = useState(false)
 
@@ -55,16 +58,45 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
 
   const createClass = async (e) => {
     e.preventDefault()
-    if (!newClassName.trim()) return
+    if (!newClassName.trim()) {
+      setClassMessageType('error')
+      setClassMessage('Zadej prosím název třídy.')
+      return
+    }
+
     setCreatingClass(true)
-    await fetch(`${api}/api/classes`, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ name: newClassName }),
-    })
-    setNewClassName('')
-    setCreatingClass(false)
-    fetchData()
+    setClassMessage(null)
+
+    try {
+      const res = await fetch(`${api}/api/classes`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ name: newClassName }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Nepodařilo se vytvořit třídu.')
+
+      setClassMessageType('success')
+      setClassMessage(`✅ Třída „${data.name}“ vytvořena! Kód je ${data.join_code}.`)
+      setNewClassName('')
+      fetchData()
+    } catch (err) {
+      setClassMessageType('error')
+      setClassMessage(err.message)
+    } finally {
+      setCreatingClass(false)
+    }
+  }
+
+  const copyCode = async (code) => {
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopiedCode(code)
+      setTimeout(() => setCopiedCode(null), 2000)
+    } catch {
+      setClassMessageType('error')
+      setClassMessage('Nelze zkopírovat do schránky.')
+    }
   }
 
   const useTemplate = (t) => {
@@ -110,8 +142,15 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
             {creatingClass ? '...' : '✅ Vytvořit třídu'}
           </button>
         </form>
+
+        {classMessage && (
+          <div className={`alert ${classMessageType === 'error' ? 'alert-error' : 'alert-success'}`}>
+            {classMessage}
+          </div>
+        )}
+
         {classes.length === 0 ? (
-          <p className="empty">Zatím nemáš žádné třídy. Vytvoř jednu a sdílej kód se žáky.</p>
+          <p className="empty">Zatím nemáš žádné třídy. Vytvoř jednu a pošli žákům kód.</p>
         ) : (
           <div className="class-list">
             {classes.map(cls => (
@@ -120,8 +159,12 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                   <h3>{cls.name}</h3>
                   <div className="class-code">
                     <span>Kód: <strong>{cls.join_code}</strong></span>
-                    <button type="button" className="btn-copy" onClick={() => navigator.clipboard.writeText(cls.join_code)}>
-                      📋 Kopírovat
+                    <button
+                      type="button"
+                      className="btn-copy"
+                      onClick={() => copyCode(cls.join_code)}
+                    >
+                      {copiedCode === cls.join_code ? '✅ Zkopírováno' : '📋 Kopírovat'}
                     </button>
                   </div>
                 </div>
