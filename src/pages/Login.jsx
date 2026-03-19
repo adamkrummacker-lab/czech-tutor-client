@@ -5,6 +5,7 @@ export default function Login({ api, onLogin }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [classCode, setClassCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -15,7 +16,7 @@ export default function Login({ api, onLogin }) {
     try {
       const url = isRegister ? `${api}/api/auth/register` : `${api}/api/auth/login`
       const body = isRegister
-        ? { username, password, name }
+        ? { username, password, name, classCode: classCode.trim() }
         : { username, password }
       const res = await fetch(url, {
         method: 'POST',
@@ -45,13 +46,21 @@ export default function Login({ api, onLogin }) {
 
         <form onSubmit={handleSubmit}>
           {isRegister && (
-            <input
-              type="text"
-              placeholder="Tvoje jméno (např. Jan Novák)"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              required
-            />
+            <>
+              <input
+                type="text"
+                placeholder="Tvoje jméno (např. Jan Novák)"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Kód třídy (od učitele)"
+                value={classCode}
+                onChange={e => setClassCode(e.target.value)}
+              />
+            </>
           )}
           <input
             type="text"
@@ -81,6 +90,7 @@ export default function Login({ api, onLogin }) {
         {isRegister && (
           <div className="login-hint">
             <p>Noví uživatelé se registrují jako žáci.</p>
+            <p>Potřebuješ kód třídy od učitele (např. <code>ABC123</code>).</p>
           </div>
         )}
       </div>

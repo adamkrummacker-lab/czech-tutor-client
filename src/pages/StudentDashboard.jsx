@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 export default function StudentDashboard({ api, user, token, authHeaders, onOpenChat }) {
   const [topics, setTopics] = useState([])
   const [gamification, setGamification] = useState({ xp: 0, streak: 0, badges: [], allBadges: [] })
+  const [classInfo, setClassInfo] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -10,9 +11,11 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
     Promise.all([
       fetch(`${api}/api/topics`, { headers }).then(r => r.json()),
       fetch(`${api}/api/gamification`, { headers }).then(r => r.json()),
-    ]).then(([t, g]) => {
+      fetch(`${api}/api/classes/me`, { headers }).then(r => r.json()),
+    ]).then(([t, g, c]) => {
       setTopics(t)
       setGamification(g)
+      setClassInfo(c)
       setLoading(false)
     })
   }, [])
@@ -30,6 +33,15 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
         <h1>👋 Ahoj, {user.name}!</h1>
         <p>Procvičuj češtinu s AI lektorem 🤖</p>
       </div>
+      {classInfo?.class ? (
+        <div className="student-class">
+          <p>🏫 Třída: <strong>{classInfo.class.name}</strong> · Učitel: {classInfo.class.teacher_name}</p>
+        </div>
+      ) : (
+        <div className="student-class">
+          <p>⚠️ Nejsi zatím přiřazen do žádné třídy. Zeptej se učitele na kód nebo ho zadej v Nastavení.</p>
+        </div>
+      )}
 
       {/* Gamification Bar */}
       <div className="gamification-bar">

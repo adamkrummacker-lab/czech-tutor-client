@@ -2,25 +2,36 @@ import { useState, useEffect } from 'react'
 
 export default function TeacherDashboard({ api, user, token, authHeaders, onOpenChat }) {
   const [topics, setTopics] = useState([])
+  const [classes, setClasses] = useState([])
   const [students, setStudents] = useState([])
   const [templates, setTemplates] = useState([])
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [level, setLevel] = useState('A2')
   const [minMessages, setMinMessages] = useState(10)
+  const [newClassName, setNewClassName] = useState('')
+  const [creatingClass, setCreatingClass] = useState(false)
   const [loading, setLoading] = useState(true)
   const [showTemplates, setShowTemplates] = useState(false)
 
   const fetchData = async () => {
     setLoading(true)
     const headers = { 'Authorization': `Bearer ${token}` }
-    const [topicsRes, studentsRes, templatesRes] = await Promise.all([
+    const [topicsRes, classesRes, templatesRes] = await Promise.all([
       fetch(`${api}/api/topics`, { headers }),
-      fetch(`${api}/api/students`, { headers }),
+      fetch(`${api}/api/classes`, { headers }),
       fetch(`${api}/api/templates`, { headers }),
     ])
+    const classesData = await classesRes.json()
+    setClasses(classesData)
+    const studentsList = []
+    for (const c of classesData) {
+      for (const s of c.students || []) {
+        if (!studentsList.some(st => st.id === s.id)) studentsList.push(s)
+      }
+    }
+    setStudents(studentsList)
     setTopics(await topicsRes.json())
-    setStudents(await studentsRes.json())
     setTemplates(await templatesRes.json())
     setLoading(false)
   }
@@ -39,6 +50,20 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     setDescription('')
     setLevel('A2')
     setMinMessages(10)
+    fetchData()
+  }
+
+  const createClass = async (e) => {
+    e.preventDefault()
+    if (!newClassName.trim()) return
+    setCreatingClass(true)
+    await fetch(`${api}/api/classes`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ name: newClassName }),
+    })
+    setNewClassName('')
+    setCreatingClass(false)
     fetchData()
   }
 
@@ -72,6 +97,52 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
 
   return (
     <div className="dashboard">
+      <section className="section">
+        <h2>🏫 Moje třídy</h2>
+        <form className="topic-form" onSubmit={createClass} style={{ marginBottom: '1rem' }}>
+          <input
+            type="text"
+            placeholder="Název nové třídy (např. 3.B)"
+            value={newClassName}
+            onChange={e => setNewClassName(e.target.value)}
+          />
+          <button type="submit" disabled={creatingClass}>
+            {creatingClass ? '...' : '✅ Vytvořit třídu'}
+          </button>
+        </form>
+        {classes.length === 0 ? (
+          <p className="empty">Zatím nemáš žádné třídy. Vytvoř jednu a sdílej kód se žáky.</p>
+        ) : (
+          <div className="class-list">
+            {classes.map(cls => (
+              <div key={cls.id} className="class-card">
+                <div className="class-header">
+                  <h3>{cls.name}</h3>
+                  <div className="class-code">
+                    <span>Kód: <strong>{cls.join_code}</strong></span>
+                    <button type="button" className="btn-copy" onClick={() => navigator.clipboard.writeText(cls.join_code)}>
+                      📋 Kopírovat
+                    </button>
+                  </div>
+                </div>
+                <div className="class-students">
+                  <strong>Žáci ({cls.students?.length || 0}):</strong>
+                  {cls.students?.length ? (
+                    <ul>
+                      {cls.students.map(s => (
+                        <li key={s.id}>{s.name} ({s.username})</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="empty">Žádní žáci zatím.</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       <section className="section">
         <h2>📝 Vytvořit nové téma</h2>
         <button className="btn-templates" onClick={() => setShowTemplates(!showTemplates)}>

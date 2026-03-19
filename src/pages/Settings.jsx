@@ -4,6 +4,9 @@ export default function Settings({ api, authHeaders, user, setUser }) {
   const [prefs, setPrefs] = useState({ nickname: '', avatar: '😎', theme: 'light' })
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
+  const [classCode, setClassCode] = useState('')
+  const [classMessage, setClassMessage] = useState(null)
+  const [joiningClass, setJoiningClass] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -31,6 +34,27 @@ export default function Settings({ api, authHeaders, user, setUser }) {
     } finally {
       setSaving(false)
       setTimeout(() => setMessage(null), 3000)
+    }
+  }
+
+  const joinClass = async (e) => {
+    e.preventDefault()
+    if (!classCode.trim()) return
+    setJoiningClass(true)
+    try {
+      const res = await fetch(`${api}/api/classes/join`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ code: classCode.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Chyba při přihlášení do třídy')
+      setClassMessage('✅ Přihlášeno do třídy! Stránka se obnoví...')
+      setTimeout(() => window.location.reload(), 1200)
+    } catch (err) {
+      setClassMessage(err.message)
+    } finally {
+      setJoiningClass(false)
     }
   }
 
@@ -64,6 +88,21 @@ export default function Settings({ api, authHeaders, user, setUser }) {
         <button type="submit" disabled={saving}>{saving ? 'Ukládám…' : 'Uložit nastavení'}</button>
         {message && <div className="settings-message">{message}</div>}
       </form>
+
+      {user.role === 'student' && (
+        <section className="settings-section">
+          <h3>🏫 Přihlásit se do třídy</h3>
+          <form className="settings-form" onSubmit={joinClass}>
+            <input
+              value={classCode}
+              onChange={e => setClassCode(e.target.value)}
+              placeholder="Kód třídy"
+            />
+            <button type="submit" disabled={joiningClass}>{joiningClass ? '...' : 'Přihlásit'}</button>
+          </form>
+          {classMessage && <div className="settings-message">{classMessage}</div>}
+        </section>
+      )}
     </div>
   )
 }
