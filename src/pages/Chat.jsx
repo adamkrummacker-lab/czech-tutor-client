@@ -53,21 +53,6 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  useEffect(() => {
-    if (!isStudent || messages.length === 0) return
-    const last = messages[messages.length - 1]
-    if (last.role === 'assistant' && !sending) {
-      speakText(last.content, messages.length - 1)
-    }
-  }, [messages, sending])
-
-  useEffect(() => {
-    return () => {
-      window.speechSynthesis.cancel()
-      if (recognitionRef.current) recognitionRef.current.abort()
-    }
-  }, [])
-
   const speakText = useCallback((text, msgIndex) => {
     window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(text)
@@ -77,6 +62,21 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
     utterance.onend = () => setSpeakingMsgId(null)
     utterance.onerror = () => setSpeakingMsgId(null)
     window.speechSynthesis.speak(utterance)
+  }, [])
+
+  useEffect(() => {
+    if (!isStudent || messages.length === 0) return
+    const last = messages[messages.length - 1]
+    if (last.role === 'assistant' && !sending) {
+      speakText(last.content, messages.length - 1)
+    }
+  }, [messages, sending, isStudent, speakText])
+
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis.cancel()
+      if (recognitionRef.current) recognitionRef.current.abort()
+    }
   }, [])
 
   const stopSpeaking = useCallback(() => {

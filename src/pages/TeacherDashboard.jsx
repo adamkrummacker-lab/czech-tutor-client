@@ -29,6 +29,30 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [showEvaluations, setShowEvaluations] = useState(false)
   const [viewingStudents, setViewingStudents] = useState(null)
 
+  const fetchAiInstructions = useCallback(async () => {
+    try {
+      const res = await fetch(`${api}/api/ai-instructions`, { 
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const data = await res.json()
+      setAiInstructions(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Failed to fetch AI instructions:', err)
+    }
+  }, [api, token])
+
+  const fetchEvaluations = useCallback(async () => {
+    try {
+      const res = await fetch(`${api}/api/me/evaluations`, { 
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const data = await res.json()
+      setEvaluations(data)
+    } catch (err) {
+      console.error('Failed to fetch evaluations:', err)
+    }
+  }, [api, token])
+
   const fetchData = useCallback(async () => {
     setLoading(true)
     const headers = { 'Authorization': `Bearer ${token}` }
@@ -99,18 +123,6 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     }
   }
 
-  const fetchEvaluations = useCallback(async () => {
-    try {
-      const res = await fetch(`${api}/api/me/evaluations`, { 
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      const data = await res.json()
-      setEvaluations(data)
-    } catch (err) {
-      console.error('Failed to fetch evaluations:', err)
-    }
-  }, [api, token])
-
   const createClass = async (e) => {
     e.preventDefault()
     if (!newClassName.trim()) {
@@ -161,18 +173,6 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     setLevel(t.level)
     setShowTemplates(false)
   }
-
-  const fetchAiInstructions = useCallback(async () => {
-    try {
-      const res = await fetch(`${api}/api/ai-instructions`, { 
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      const data = await res.json()
-      setAiInstructions(Array.isArray(data) ? data : [])
-    } catch (err) {
-      console.error('Failed to fetch AI instructions:', err)
-    }
-  }, [api, token])
 
   const saveInstruction = async (e) => {
     e.preventDefault()
