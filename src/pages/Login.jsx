@@ -35,7 +35,7 @@ export default function Login({ api, onLogin }) {
   return (
     <div className="login-page">
       <div className="login-card">
-        <h1>🇨🇿 Czech Tutor</h1>
+        <h1>👋 Kámo</h1>
         <p className="login-subtitle">AI lektor českého jazyka</p>
 
         <div className="login-tabs">

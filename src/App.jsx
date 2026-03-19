@@ -48,7 +48,7 @@ export default function App() {
     <div className="app">
       <nav className="navbar">
         <div className="nav-left">
-          <span className="logo">🇨🇿 Czech Tutor</span>
+          <span className="logo">👋 Kámo</span>
           {page !== 'dashboard' && <button className="btn-back" onClick={goBack}>← Zpět</button>}
         </div>
         <div className="nav-right">
