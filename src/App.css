@@ -10,6 +10,10 @@
 .nav-left { display: flex; align-items: center; gap: 1rem; }
 .nav-right { display: flex; align-items: center; gap: 1rem; }
 .logo { font-size: 1.3rem; font-weight: 700; }
+.daily-tip {
+  font-size: 0.85rem; color: #94a3b8; background: rgba(148, 163, 184, 0.17);
+  padding: 0.25rem 0.6rem; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.35);
+}
 .user-info { color: #94a3b8; font-size: 0.9rem; }
 .btn-back {
   background: none; border: 1px solid #475569; color: #94a3b8;
@@ -194,6 +198,26 @@
   display: flex; align-items: center; justify-content: space-between; margin-top: 0.3rem;
 }
 .message.user .message-footer { justify-content: flex-end; }
+
+.message-reactions {
+  display: flex; gap: 0.4rem; margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+.btn-reaction {
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: rgba(15, 23, 42, 0.8);
+  color: #e2e8f0;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex; align-items: center; gap: 0.25rem;
+}
+.btn-reaction.mine {
+  background: rgba(34, 197, 94, 0.25);
+  border-color: rgba(34, 197, 94, 0.6);
+}
+.btn-reaction:hover { background: rgba(34, 197, 94, 0.15); }
 
 .btn-speak {
   background: none; border: none; cursor: pointer; font-size: 0.9rem;

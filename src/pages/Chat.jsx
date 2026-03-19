@@ -18,7 +18,10 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
   const [minMessages, setMinMessages] = useState(topic.min_messages || 10)
   const [submitted, setSubmitted] = useState(!!topic.submitted_at)
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
   const messagesEndRef = useRef(null)
+
+  const REACTION_EMOJIS = ['👍', '❤️', '😂', '🤔', '🎉']
   const recognitionRef = useRef(null)
 
   const isReadOnly = user.role === 'teacher' && viewingStudent
@@ -112,7 +115,8 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
     setSending(true)
     stopSpeaking()
 
-    const userMsg = { role: 'user', content: input, timestamp: new Date().toISOString() }
+    const tempId = `tmp-${Date.now()}`
+    const userMsg = { id: tempId, role: 'user', content: input, timestamp: new Date().toISOString(), reactions: [] }
     setMessages(prev => [...prev, userMsg])
     setInput('')
 
@@ -124,7 +128,11 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
       })
       const data = await res.json()
       if (data.reply) {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.reply, timestamp: new Date().toISOString() }])
+        if (data.userMessageId) {
+          setMessages(prev => prev.map(m => m.id === tempId ? { ...m, id: data.userMessageId } : m))
+        }
+
+        setMessages(prev => [...prev, { id: data.assistantMessageId, role: 'assistant', content: data.reply, timestamp: new Date().toISOString(), reactions: [] }])
         if (data.messageCount != null) setMessageCount(data.messageCount)
         if (data.minMessages != null) setMinMessages(data.minMessages)
         // Show XP notification
@@ -142,6 +150,22 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
       setMessages(prev => [...prev, { role: 'assistant', content: '⚠️ Chyba při komunikaci s AI. Zkus to znovu.', timestamp: new Date().toISOString() }])
     } finally {
       setSending(false)
+    }
+  }
+
+  const toggleReaction = async (messageId, emoji) => {
+    try {
+      const res = await fetch(`${api}/api/chat/${topic.id}/messages/${messageId}/reactions`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ emoji }),
+      })
+      const data = await res.json()
+      if (data.reactions) {
+        setMessages(prev => prev.map(m => m.id === messageId ? { ...m, reactions: data.reactions } : m))
+      }
+    } catch {
+      // ignore
     }
   }
 
@@ -194,6 +218,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
       const data = await res.json()
       if (data.ok) {
         setSubmitted(true)
+        setSubmitError(null)
         if (data.xp) {
           setXpNotif(`+15 XP za odevzdání! Celkem: ${data.xp} XP`)
           setTimeout(() => setXpNotif(null), 3000)
@@ -203,9 +228,11 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
             onGoToFinalTest && onGoToFinalTest()
           }
         }, 500)
+      } else {
+        setSubmitError(data.error || 'Chyba při odevzdání. Zkus to prosím znovu.')
       }
-    } catch {
-      alert('Chyba při odevzdání.')
+    } catch (err) {
+      setSubmitError('Chyba při odevzdání. Zkontroluj připojení a zkus to znovu.')
     } finally {
       setSubmitting(false)
     }
@@ -260,6 +287,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
                 {evaluating ? '⏳ Hodnotím...' : '📊 Hodnocení'}
               </button>
             )}
+            {submitError && <div className="submit-error">⚠️ {submitError}</div>}
             {isStudent && !submitted && messageCount >= minMessages && (
               <button className="btn-submit" onClick={submitWork} disabled={submitting}>
                 {submitting ? '⏳...' : '✅ Odevzdat práci'}
@@ -318,6 +346,25 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
             <div className="message-avatar">{msg.role === 'user' ? '🧑‍🎓' : '🤖'}</div>
             <div className="message-bubble">
               {renderContent(msg.content, msg.role)}
+
+              <div className="message-reactions">
+                {REACTION_EMOJIS.map((emoji) => {
+                  const reaction = (msg.reactions || []).find(r => r.emoji === emoji)
+                  const count = reaction?.count || 0
+                  const me = !!reaction?.me
+                  return (
+                    <button
+                      key={emoji}
+                      type="button"
+                      className={`btn-reaction ${me ? 'mine' : ''}`}
+                      onClick={() => toggleReaction(msg.id, emoji)}
+                    >
+                      {emoji} {count > 0 ? count : ''}
+                    </button>
+                  )
+                })}
+              </div>
+
               <div className="message-footer">
                 <span className="message-time">
                   {new Date(msg.timestamp).toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })}

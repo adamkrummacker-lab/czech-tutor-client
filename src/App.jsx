@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import FinalTest from './pages/FinalTest'
 import Login from './pages/Login'
 import TeacherDashboard from './pages/TeacherDashboard'
@@ -6,6 +6,8 @@ import StudentDashboard from './pages/StudentDashboard'
 import Chat from './pages/Chat'
 import Vocabulary from './pages/Vocabulary'
 import Stats from './pages/Stats'
+import Settings from './pages/Settings'
+import Evaluations from './pages/Evaluations'
 import './App.css'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
@@ -15,6 +17,7 @@ export default function App() {
   const [page, setPage] = useState('dashboard')
   const [activeTopic, setActiveTopic] = useState(null)
   const [viewingStudent, setViewingStudent] = useState(null)
+  const [dailyTip, setDailyTip] = useState(null)
 
   const token = user?.token
 
@@ -22,6 +25,14 @@ export default function App() {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
   })
+
+  useEffect(() => {
+    if (!token) return
+    fetch(`${API}/api/daily-tip`, { headers: authHeaders() })
+      .then(r => r.json())
+      .then(data => setDailyTip(data.tip || null))
+      .catch(() => {})
+  }, [token])
 
   if (!user) {
     return <Login api={API} onLogin={setUser} />
@@ -49,6 +60,7 @@ export default function App() {
       <nav className="navbar">
         <div className="nav-left">
           <span className="logo">👋 Kámo</span>
+          {dailyTip && <span className="daily-tip">{dailyTip}</span>}
           {page !== 'dashboard' && <button className="btn-back" onClick={goBack}>← Zpět</button>}
         </div>
         <div className="nav-right">
@@ -56,6 +68,7 @@ export default function App() {
             <>
               <button className={`nav-tab ${page === 'dashboard' ? 'active' : ''}`} onClick={() => setPage('dashboard')}>🎮 Témata</button>
               <button className={`nav-tab ${page === 'vocabulary' ? 'active' : ''}`} onClick={() => setPage('vocabulary')}>📖 Slovníček</button>
+              <button className={`nav-tab ${page === 'evaluations' ? 'active' : ''}`} onClick={() => setPage('evaluations')}>📌 Hodnocení</button>
             </>
           )}
           {user.role === 'teacher' && (
@@ -64,7 +77,8 @@ export default function App() {
               <button className={`nav-tab ${page === 'stats' ? 'active' : ''}`} onClick={() => setPage('stats')}>📊 Statistiky</button>
             </>
           )}
-          <span className="user-info">{user.name}</span>
+          <button className={`nav-tab ${page === 'settings' ? 'active' : ''}`} onClick={() => setPage('settings')}>⚙️ Nastavení</button>
+          <span className="user-info">{user.preferences?.nickname || user.name}</span>
           <button className="btn-logout" onClick={logout}>Odhlásit</button>
         </div>
       </nav>
@@ -81,6 +95,12 @@ export default function App() {
         )}
         {page === 'vocabulary' && (
           <Vocabulary api={API} user={user} token={token} authHeaders={authHeaders} />
+        )}
+        {page === 'evaluations' && (
+          <Evaluations api={API} authHeaders={authHeaders} />
+        )}
+        {page === 'settings' && (
+          <Settings api={API} authHeaders={authHeaders} user={user} setUser={setUser} />
         )}
         {page === 'stats' && (
           <Stats api={API} user={user} token={token} authHeaders={authHeaders} />
