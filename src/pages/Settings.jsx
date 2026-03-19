@@ -161,7 +161,7 @@ export default function Settings({ api, authHeaders, user, setUser }) {
                 <form className="settings-form" onSubmit={joinClass}>
                   <input
                     value={classCode}
-                    onChange={e => setClassCode(e.target.value)}
+                    onChange={e => setClassCode(e.target.value.toUpperCase())}
                     placeholder="Kód třídy"
                   />
                   <button type="submit" disabled={joiningClass}>{joiningClass ? '...' : 'Přihlásit'}</button>
