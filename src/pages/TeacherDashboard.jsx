@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 export default function TeacherDashboard({ api, user, token, authHeaders, onOpenChat }) {
   const [topics, setTopics] = useState([])
@@ -27,16 +27,9 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [instructionLoading, setInstructionLoading] = useState(false)
   const [evaluations, setEvaluations] = useState([])
   const [showEvaluations, setShowEvaluations] = useState(false)
-  // Temporarily disable evaluations to test loading
-  const [gradingStudent, setGradingStudent] = useState(null)
-  const [gradingForm, setGradingForm] = useState({
-    score: '',
-    grade: '',
-    evaluation: ''
-  })
   const [viewingStudents, setViewingStudents] = useState(null)
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     const headers = { 'Authorization': `Bearer ${token}` }
     try {
@@ -44,11 +37,11 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
         fetch(`${api}/api/topics`, { headers }),
         fetch(`${api}/api/classes`, { headers }),
         fetch(`${api}/api/templates`, { headers }),
-        // Temporarily disable evaluations to test loading
-        // fetch(`${api}/api/me/evaluations`, { headers }),
       ])
+
       const classesData = await classesRes.json()
       setClasses(classesData)
+
       const studentsList = []
       for (const c of classesData) {
         for (const s of c.students || []) {
@@ -58,22 +51,55 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
         }
       }
       setStudents(studentsList)
+
       setTopics(await topicsRes.json())
       setTemplates(await templatesRes.json())
-      // setEvaluations(await evalRes.json())
+
+      // Fetch AI instructions & evaluations for this teacher
+      await fetchAiInstructions()
+      await fetchEvaluations()
     } catch (err) {
       console.error('Error fetching data:', err)
+    } finally {
+      setLoading(false)
     }
-    // Temporarily commented out to debug loading issue
-    // try {
-    //   await fetchAiInstructions()
-    // } catch (err) {
-    //   console.error('Error fetching AI instructions:', err)
-    // }
-    setLoading(false)
+  }, [api, token, fetchAiInstructions, fetchEvaluations])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  const createTopic = async (e) => {
+    e.preventDefault()
+    if (!title.trim()) {
+      setClassMessageType('error')
+      setClassMessage('Zadej prosím název tématu.')
+      return
+    }
+
+    try {
+      const res = await fetch(`${api}/api/topics`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ title, description, level, minMessages }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Nepodařilo se vytvořit téma.')
+
+      setTopics(prev => [data, ...prev])
+      setTitle('')
+      setDescription('')
+      setLevel('A2')
+      setMinMessages(10)
+      setClassMessageType('success')
+      setClassMessage('✅ Téma vytvořeno')
+    } catch (err) {
+      setClassMessageType('error')
+      setClassMessage(err.message)
+    }
   }
 
-  const fetchEvaluations = async () => {
+  const fetchEvaluations = useCallback(async () => {
     try {
       const res = await fetch(`${api}/api/me/evaluations`, { 
         headers: { 'Authorization': `Bearer ${token}` }
@@ -83,7 +109,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     } catch (err) {
       console.error('Failed to fetch evaluations:', err)
     }
-  }
+  }, [api, token])
 
   const createClass = async (e) => {
     e.preventDefault()
@@ -129,14 +155,14 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     }
   }
 
-  const useTemplate = (t) => {
+  const applyTemplate = (t) => {
     setTitle(t.title)
     setDescription(t.description)
     setLevel(t.level)
     setShowTemplates(false)
   }
 
-  const fetchAiInstructions = async () => {
+  const fetchAiInstructions = useCallback(async () => {
     try {
       const res = await fetch(`${api}/api/ai-instructions`, { 
         headers: { 'Authorization': `Bearer ${token}` }
@@ -146,7 +172,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     } catch (err) {
       console.error('Failed to fetch AI instructions:', err)
     }
-  }
+  }, [api, token])
 
   const saveInstruction = async (e) => {
     e.preventDefault()
@@ -179,7 +205,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
       
       // Refresh instructions
       await fetchAiInstructions()
-    } catch (err) {
+    } catch {
       setClassMessageType('error')
       setClassMessage('❌ Chyba při ukládání instrukcí')
     } finally {
@@ -212,7 +238,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
       
       // Refresh instructions
       await fetchAiInstructions()
-    } catch (err) {
+    } catch {
       setClassMessageType('error')
       setClassMessage('❌ Chyba při mazání instrukcí')
     }
@@ -241,6 +267,10 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
 
   return (
     <div className="dashboard">
+      <div className="teacher-greeting">
+        <h1>👋 Ahoj, {user.name}!</h1>
+        <p>Spravuj třídy, zadávej úkoly a nastavuj AI instrukce pro své žáky.</p>
+      </div>
       <section className="section">
         <h2>🏫 Moje třídy</h2>
         <form className="topic-form" onSubmit={createClass} style={{ marginBottom: '1rem' }}>
@@ -548,7 +578,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
         {showTemplates && (
           <div className="templates-grid">
             {templates.map((t, i) => (
-              <div key={i} className="template-card" onClick={() => useTemplate(t)}>
+              <div key={i} className="template-card" onClick={() => applyTemplate(t)}>
                 <div className="template-level">{t.level}</div>
                 <h4>{t.title}</h4>
                 <p>{t.description}</p>

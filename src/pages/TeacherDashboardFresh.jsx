@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function TeacherDashboardFresh({ api, user, token, authHeaders, onOpenChat }) {
+export default function TeacherDashboardFresh({ api, token }) {
   const [loading, setLoading] = useState(true)
   const [classes, setClasses] = useState([])
   const [topics, setTopics] = useState([])
@@ -22,7 +22,7 @@ export default function TeacherDashboardFresh({ api, user, token, authHeaders, o
     const fetchData = async () => {
       try {
         const headers = { 'Authorization': `Bearer ${token}` }
-        const [classesRes, topicsRes, lecturesRes] = await Promise.all([
+        const [classesRes, topicsRes, lecturesRes, assignmentsRes] = await Promise.all([
           fetch(`${api}/api/classes`, { headers }),
           fetch(`${api}/api/topics`, { headers }),
           fetch(`${api}/api/lectures`, { headers }),
