@@ -11,6 +11,12 @@ export default function TeacherDashboardFresh({ api, user, token, authHeaders, o
     content: '',
     topicId: null
   })
+  const [showAssignments, setShowAssignments] = useState(false)
+  const [assignments, setAssignments] = useState([])
+  const [assignmentForm, setAssignmentForm] = useState({
+    lectureId: null,
+    studentIds: []
+  })
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,11 +26,13 @@ export default function TeacherDashboardFresh({ api, user, token, authHeaders, o
           fetch(`${api}/api/classes`, { headers }),
           fetch(`${api}/api/topics`, { headers }),
           fetch(`${api}/api/lectures`, { headers }),
+          fetch(`${api}/api/lecture-assignments`, { headers }),
         ])
         
         setClasses(await classesRes.json())
         setTopics(await topicsRes.json())
         setLectures(await lecturesRes.json())
+        setAssignments(await assignmentsRes.json())
       } catch (err) {
         console.error('Error:', err)
       }
@@ -69,6 +77,44 @@ export default function TeacherDashboardFresh({ api, user, token, authHeaders, o
       setLectures(prev => prev.filter(l => l.id !== id))
     } catch (err) {
       console.error('Error deleting lecture:', err)
+    }
+  }
+
+  const createAssignment = async (e) => {
+    e.preventDefault()
+    if (!assignmentForm.lectureId || assignmentForm.studentIds.length === 0) return
+
+    try {
+      const res = await fetch(`${api}/api/lecture-assignments`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(assignmentForm)
+      })
+
+      if (!res.ok) throw new Error('Failed to create assignment')
+
+      const data = await res.json()
+      setAssignments(prev => [data, ...prev])
+      setAssignmentForm({ lectureId: null, studentIds: [] })
+    } catch (err) {
+      console.error('Error creating assignment:', err)
+    }
+  }
+
+  const deleteAssignment = async (id) => {
+    if (!confirm('Opravdu chcete smazat toto přiřazení?')) return
+
+    try {
+      const res = await fetch(`${api}/api/lecture-assignments/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+      })
+
+      if (!res.ok) throw new Error('Failed to delete assignment')
+
+      setAssignments(prev => prev.filter(a => a.id !== id))
+    } catch (err) {
+      console.error('Error deleting assignment:', err)
     }
   }
 
@@ -162,6 +208,97 @@ export default function TeacherDashboardFresh({ api, user, token, authHeaders, o
                 </div>
                 <div className="lecture-meta">
                   Vytvořeno: {new Date(lecture.created_at).toLocaleDateString('cs-CZ')}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="section-header">
+          <h2>👥 Přiřazení studentů</h2>
+          <button 
+            className="btn-toggle" 
+            onClick={() => setShowAssignments(!showAssignments)}
+          >
+            {showAssignments ? '✕ Skrýt' : '👥 Spravovat přiřazení'}
+          </button>
+        </div>
+
+        {showAssignments && (
+          <div className="assignment-form">
+            <h3>👥 Přiřadit přednášku studentům</h3>
+            <form onSubmit={createAssignment}>
+              <div className="form-group">
+                <label>Přednáška</label>
+                <select
+                  value={assignmentForm.lectureId}
+                  onChange={e => setAssignmentForm(prev => ({ ...prev, lectureId: e.target.value }))}
+                  required
+                >
+                  <option value="">-- Vyberte přednášku --</option>
+                  {lectures.map(lecture => (
+                    <option key={lecture.id} value={lecture.id}>
+                      {lecture.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Studenti</label>
+                <div className="student-selector">
+                  {classes.map(cls => (
+                    cls.students?.map(student => (
+                      <div key={student.id} className="student-option">
+                        <input
+                          type="checkbox"
+                          value={student.id}
+                          checked={assignmentForm.studentIds.includes(student.id)}
+                          onChange={e => {
+                            const studentIds = e.target.checked
+                              ? [...assignmentForm.studentIds, student.id]
+                              : assignmentForm.studentIds.filter(id => id !== student.id);
+                            setAssignmentForm(prev => ({ ...prev, studentIds }));
+                          }}
+                        />
+                        <label>{student.name} ({student.username})</label>
+                      </div>
+                    ))
+                  ))}
+                </div>
+              </div>
+              <div className="form-actions">
+                <button type="submit" className="btn-primary">
+                  👥 Přiřadit studentům
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        <div className="assignments-list">
+          <h3>📋 Moje přiřazení</h3>
+          {assignments.length === 0 ? (
+            <p className="empty">Zatím nemáte žádná přiřazení.</p>
+          ) : (
+            assignments.map(assignment => (
+              <div key={assignment.id} className="assignment-card">
+                <div className="assignment-header">
+                  <h4>{assignment.lecture_title}</h4>
+                  <div className="assignment-students">
+                    {assignment.students?.map(student => (
+                      <span key={student.id} className="assigned-student">
+                        {student.name}
+                      </span>
+                    ))}
+                  </div>
+                  <button 
+                    className="btn-delete"
+                    onClick={() => deleteAssignment(assignment.id)}
+                  >
+                    🗑️ Smazat přiřazení
+                  </button>
                 </div>
               </div>
             ))
