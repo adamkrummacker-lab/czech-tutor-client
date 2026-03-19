@@ -14,10 +14,6 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [classMessage, setClassMessage] = useState(null)
   const [classMessageType, setClassMessageType] = useState('success')
   const [copiedCode, setCopiedCode] = useState(null)
-  const [inviteName, setInviteName] = useState('')
-  const [inviteClassId, setInviteClassId] = useState(null)
-  const [inviteResult, setInviteResult] = useState(null)
-  const [inviteLoading, setInviteLoading] = useState(false)
   const [loading, setLoading] = useState(true)
   const [showTemplates, setShowTemplates] = useState(false)
 
@@ -31,7 +27,6 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     ])
     const classesData = await classesRes.json()
     setClasses(classesData)
-    if (classesData.length > 0 && !inviteClassId) setInviteClassId(classesData[0].id)
     const studentsList = []
     for (const c of classesData) {
       for (const s of c.students || []) {
@@ -93,44 +88,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     }
   }
 
-  const inviteStudent = async (e) => {
-    e.preventDefault()
-    if (!inviteName.trim()) {
-      setClassMessageType('error')
-      setClassMessage('Zadej prosím jméno žáka.')
-      return
-    }
-    if (!inviteClassId) {
-      setClassMessageType('error')
-      setClassMessage('Vyber třídu.')
-      return
-    }
-
-    setInviteLoading(true)
-    setInviteResult(null)
-    setClassMessage(null)
-
-    try {
-      const res = await fetch(`${api}/api/students/invite`, {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({ name: inviteName, classId: inviteClassId }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Nepodařilo se pozvat žáka.')
-
-      setInviteResult(data)
-      setInviteName('')
-      setClassMessageType('success')
-      setClassMessage(`✅ Žák pozván: ${data.username}`)
-    } catch (err) {
-      setClassMessageType('error')
-      setClassMessage(err.message)
-    } finally {
-      setInviteLoading(false)
-    }
-  }
-
+  
   const copyCode = async (code) => {
     try {
       await navigator.clipboard.writeText(code)
@@ -196,40 +154,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
           <p className="empty">Zatím nemáš žádné třídy. Vytvoř jednu a pošli žákům kód.</p>
         ) : (
           <>
-            <div className="invite-card">
-              <h3>📩 Pozvat žáka</h3>
-              <p className="small-note">Uživatel dostane své přihlašovací údaje, které může použít místo kódu.</p>
-              <form className="settings-form" onSubmit={inviteStudent}>
-                <label className="field-row">
-                  <span>Vyber třídu</span>
-                  <select value={inviteClassId || ''} onChange={e => setInviteClassId(Number(e.target.value))}>
-                    {classes.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                </label>
-                <label className="field-row">
-                  <span>Jméno žáka</span>
-                  <input
-                    value={inviteName}
-                    onChange={e => setInviteName(e.target.value)}
-                    placeholder="Např. Jan Novák"
-                  />
-                </label>
-                <button type="submit" disabled={inviteLoading}>
-                  {inviteLoading ? 'Posílám…' : '✅ Pozvat žáka'}
-                </button>
-              </form>
-              {inviteResult && (
-                <div className="alert alert-success" style={{ marginTop: '0.75rem' }}>
-                  <p>✅ Žák vytvořen:</p>
-                  <p><strong>Uživatel:</strong> {inviteResult.username}</p>
-                  <p><strong>Heslo:</strong> {inviteResult.password}</p>
-                  <p><small>Pošlete mu tyto údaje (může je změnit v Nastavení).</small></p>
-                </div>
-              )}
-            </div>
-
+            
             <div className="class-list">
               {classes.map(cls => (
                 <div key={cls.id} className="class-card">

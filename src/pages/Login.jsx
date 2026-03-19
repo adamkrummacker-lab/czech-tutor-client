@@ -35,64 +35,152 @@ export default function Login({ api, onLogin }) {
 
   return (
     <div className="login-page">
-      <div className="login-card">
-        <h1>👋 Kámo</h1>
-        <p className="login-subtitle">AI lektor českého jazyka</p>
-
-        <div className="login-tabs">
-          <button className={`tab ${!isRegister ? 'active' : ''}`} onClick={() => { setIsRegister(false); setError('') }}>Přihlášení</button>
-          <button className={`tab ${isRegister ? 'active' : ''}`} onClick={() => { setIsRegister(true); setError('') }}>Registrace</button>
+      <div className="login-background">
+        <div className="floating-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
         </div>
+      </div>
+      
+      <div className="login-container">
+        <div className="login-card">
+          <div className="login-header">
+            <div className="logo-container">
+              <h1 className="logo">👋 Kámo</h1>
+            </div>
+            <p className="login-subtitle">Tvůj AI lektor českého jazyka</p>
+            <p className="login-description">
+              {isRegister 
+                ? 'Přidej se ke své třídě a začněn se učit česky zábavnou formou'
+                : 'Přihlas se a pokračuj ve své cestě k dokonalé češtině'
+              }
+            </p>
+          </div>
 
-        <form onSubmit={handleSubmit}>
-          {isRegister && (
-            <>
+          <div className="login-tabs">
+            <button 
+              className={`tab ${!isRegister ? 'active' : ''}`} 
+              onClick={() => { setIsRegister(false); setError('') }}
+            >
+              <span className="tab-icon">🔑</span>
+              Přihlášení
+            </button>
+            <button 
+              className={`tab ${isRegister ? 'active' : ''}`} 
+              onClick={() => { setIsRegister(true); setError('') }}
+            >
+              <span className="tab-icon">📝</span>
+              Registrace
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="login-form">
+            {isRegister && (
+              <div className="form-group">
+                <label className="form-label">
+                  <span className="label-icon">👤</span>
+                  Tvoje jméno
+                </label>
+                <input
+                  type="text"
+                  placeholder="Např. Jan Novák"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  required
+                  className="form-input"
+                />
+              </div>
+            )}
+
+            {isRegister && (
+              <div className="form-group">
+                <label className="form-label">
+                  <span className="label-icon">🏫</span>
+                  Kód třídy
+                </label>
+                <input
+                  type="text"
+                  placeholder="Kód od učitele (např. ABC123)"
+                  value={classCode}
+                  onChange={e => setClassCode(e.target.value)}
+                  className="form-input"
+                />
+              </div>
+            )}
+
+            <div className="form-group">
+              <label className="form-label">
+                <span className="label-icon">🆔</span>
+                Uživatelské jméno
+              </label>
               <input
                 type="text"
-                placeholder="Tvoje jméno (např. Jan Novák)"
-                value={name}
-                onChange={e => setName(e.target.value)}
+                placeholder="Zadej své uživatelské jméno"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
                 required
+                className="form-input"
               />
-              <input
-                type="text"
-                placeholder="Kód třídy (od učitele)"
-                value={classCode}
-                onChange={e => setClassCode(e.target.value)}
-              />
-            </>
-          )}
-          <input
-            type="text"
-            placeholder="Uživatelské jméno"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Heslo"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-          {error && <p className="error">{error}</p>}
-          <button type="submit" disabled={loading}>
-            {loading ? '...' : isRegister ? '📝 Zaregistrovat se' : '🔑 Přihlásit se'}
-          </button>
-        </form>
+            </div>
 
-        {!isRegister && (
-          <div className="login-hint">
-              <p>Učitel: <code>ucitel</code> / <code>ucitel123</code></p>
+            <div className="form-group">
+              <label className="form-label">
+                <span className="label-icon">🔒</span>
+                Heslo
+              </label>
+              <input
+                type="password"
+                placeholder="Zadej své heslo"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                className="form-input"
+              />
+            </div>
+
+            {error && (
+              <div className="error-message">
+                <span className="error-icon">⚠️</span>
+                {error}
+              </div>
+            )}
+
+            <button type="submit" disabled={loading} className="login-button">
+              {loading ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  {isRegister ? 'Registruji...' : 'Přihlašuji...'}
+                </>
+              ) : (
+                <>
+                  <span className="button-icon">{isRegister ? '📝' : '🔑'}</span>
+                  {isRegister ? 'Zaregistrovat se' : 'Přihlásit se'}
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="login-footer">
+            {!isRegister ? (
+              <div className="demo-info">
+                <div className="demo-badge">🎓 Demo přístup</div>
+                <p>Učitel: <code>ucitel</code> / <code>ucitel123</code></p>
+              </div>
+            ) : (
+              <div className="register-info">
+                <div className="info-item">
+                  <span className="info-icon">👨‍🎓</span>
+                  <span>Noví uživatelé se registrují jako žáci</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-icon">📋</span>
+                  <span>Potřebuješ kód třídy od svého učitele</span>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-        {isRegister && (
-          <div className="login-hint">
-            <p>Noví uživatelé se registrují jako žáci.</p>
-            <p>Potřebuješ kód třídy od učitele (např. <code>ABC123</code>).</p>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   )
