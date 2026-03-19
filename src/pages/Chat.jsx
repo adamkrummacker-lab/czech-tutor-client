@@ -121,7 +121,8 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
     setInput('')
 
     try {
-      const chatEndpoint = topic.level === 'assigned' ? `${api}/api/chat/lecture/${topic.id}` : `${api}/api/chat/${topic.id}`
+      // Temporarily use regular chat endpoint to test OpenAI
+      const chatEndpoint = topic.level === 'assigned' ? `${api}/api/chat/${topic.id}` : `${api}/api/chat/${topic.id}`
       const requestBody = topic.level === 'assigned' 
         ? { message: input, lectureContent: topic.description }
         : { message: input }
