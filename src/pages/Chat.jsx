@@ -9,6 +9,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
   const [listening, setListening] = useState(false)
   const [speakingMsgId, setSpeakingMsgId] = useState(null)
   const [evaluation, setEvaluation] = useState(null)
+  const [evaluationData, setEvaluationData] = useState(null)
   const [evaluating, setEvaluating] = useState(false)
   const [xpNotif, setXpNotif] = useState(null)
   const [badgeNotif, setBadgeNotif] = useState(null)
@@ -24,15 +25,25 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
   const isStudent = user.role === 'student'
 
   useEffect(() => {
-    const url = isReadOnly
-      ? `${api}/api/chat/${topic.id}/student/${viewingStudent.id}`
-      : `${api}/api/chat/${topic.id}`
-    fetch(url, { headers: { 'Authorization': `Bearer ${token}` } })
-      .then(r => r.json())
-      .then(data => {
-        setMessages(data)
-        setMessageCount(data.filter(m => m.role === 'user').length)
-      })
+    const fetchData = async () => {
+      const url = isReadOnly
+        ? `${api}/api/chat/${topic.id}/student/${viewingStudent.id}`
+        : `${api}/api/chat/${topic.id}`
+      const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } })
+      const data = await res.json()
+      setMessages(data)
+      setMessageCount(data.filter(m => m.role === 'user').length)
+
+      const evalUrl = `${api}/api/chat/${topic.id}/evaluation${isReadOnly && viewingStudent ? `?studentId=${viewingStudent.id}` : ''}`
+      const evalRes = await fetch(evalUrl, { headers: { 'Authorization': `Bearer ${token}` } })
+      const evalData = await evalRes.json()
+      if (evalData?.evaluation) {
+        setEvaluation(evalData.evaluation)
+        setEvaluationData(evalData)
+      }
+    }
+
+    fetchData().catch(() => {})
   }, [topic.id])
 
   useEffect(() => {
@@ -144,6 +155,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
       })
       const data = await res.json()
       setEvaluation(data.evaluation || data.error)
+      setEvaluationData({ score: data.score, grade: data.grade, evaluation: data.evaluation })
     } catch {
       setEvaluation('Chyba při hodnocení.')
     } finally {
@@ -281,6 +293,11 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
             <h3>📊 Hodnocení konverzace</h3>
             <button onClick={() => setEvaluation(null)}>✕</button>
           </div>
+          {evaluationData?.grade != null && (
+            <div className="eval-grade">
+              <strong>Známka:</strong> {evaluationData.grade} / 5&nbsp;·&nbsp;<strong>Skóre:</strong> {evaluationData.score}/10
+            </div>
+          )}
           <div className="eval-content">{evaluation}</div>
         </div>
       )}
