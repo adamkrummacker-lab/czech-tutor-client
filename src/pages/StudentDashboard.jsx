@@ -5,22 +5,34 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
   const [gamification, setGamification] = useState({ xp: 0, streak: 0, badges: [], allBadges: [] })
   const [classInfo, setClassInfo] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(null)
 
   useEffect(() => {
-    const headers = { 'Authorization': `Bearer ${token}` }
-    Promise.all([
-      fetch(`${api}/api/topics`, { headers }).then(r => r.json()),
-      fetch(`${api}/api/gamification`, { headers }).then(r => r.json()),
-      fetch(`${api}/api/classes/me`, { headers }).then(r => r.json()),
-    ]).then(([t, g, c]) => {
-      setTopics(t)
-      setGamification(g)
-      setClassInfo(c)
-      setLoading(false)
-    })
+    const fetchData = async () => {
+      setLoading(true)
+      setLoadError(null)
+      const headers = { 'Authorization': `Bearer ${token}` }
+      try {
+        const [t, g, c] = await Promise.all([
+          fetch(`${api}/api/topics`, { headers }).then(r => r.json()),
+          fetch(`${api}/api/gamification`, { headers }).then(r => r.json()),
+          fetch(`${api}/api/classes/me`, { headers }).then(r => r.json()),
+        ])
+        setTopics(t)
+        setGamification(g)
+        setClassInfo(c)
+      } catch (err) {
+        setLoadError('Chyba při načítání dat. Zkus stránku obnovit.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
   }, [])
 
   if (loading) return <div className="loading">⏳ Načítání...</div>
+  if (loadError) return <div className="loading">⚠️ {loadError}</div>
 
   const cardColors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444']
   const cardEmojis = ['📖', '🗣️', '🎯', '🌟', '🎭', '📝']
