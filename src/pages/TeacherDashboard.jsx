@@ -286,24 +286,6 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                                 <div className="student-name">{s.name}</div>
                                 <div className="student-username">@{s.username}</div>
                               </div>
-                              <div className="student-stats">
-                                <span className="xp">🌟 {s.xp || 0}</span>
-                                <span className="streak">🔥 {s.streak || 0}</span>
-                              </div>
-                              <div className="student-actions">
-                                <button 
-                                  className="btn-chat"
-                                  onClick={() => onOpenChat(null, s)}
-                                >
-                                  💬 Chatovat
-                                </button>
-                                <button 
-                                  className="btn-assign"
-                                  onClick={() => setShowAssignModal(true)}
-                                >
-                                  📚 Přiřadit téma
-                                </button>
-                              </div>
                             </div>
                           ))}
                         </div>
@@ -323,24 +305,6 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                               <div className="student-info">
                                 <div className="student-name">{s.name}</div>
                                 <div className="student-username">@{s.username}</div>
-                              </div>
-                              <div className="student-stats">
-                                <span className="xp">🌟 {s.xp || 0}</span>
-                                <span className="streak">🔥 {s.streak || 0}</span>
-                              </div>
-                              <div className="student-actions">
-                                <button 
-                                  className="btn-chat"
-                                  onClick={() => onOpenChat(null, s)}
-                                >
-                                  💬 Chatovat
-                                </button>
-                                <button 
-                                  className="btn-assign"
-                                  onClick={() => setShowAssignModal(true)}
-                                >
-                                  📚 Přiřadit téma
-                                </button>
                               </div>
                             </div>
                           ))}
