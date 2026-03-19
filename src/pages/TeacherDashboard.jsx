@@ -27,6 +27,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [instructionLoading, setInstructionLoading] = useState(false)
   const [evaluations, setEvaluations] = useState([])
   const [showEvaluations, setShowEvaluations] = useState(false)
+  // Temporarily disable evaluations to test loading
   const [gradingStudent, setGradingStudent] = useState(null)
   const [gradingForm, setGradingForm] = useState({
     score: '',
@@ -39,11 +40,12 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     setLoading(true)
     const headers = { 'Authorization': `Bearer ${token}` }
     try {
-      const [topicsRes, classesRes, templatesRes, evalRes] = await Promise.all([
+      const [topicsRes, classesRes, templatesRes] = await Promise.all([
         fetch(`${api}/api/topics`, { headers }),
         fetch(`${api}/api/classes`, { headers }),
         fetch(`${api}/api/templates`, { headers }),
-        fetch(`${api}/api/me/evaluations`, { headers }),
+        // Temporarily disable evaluations to test loading
+        // fetch(`${api}/api/me/evaluations`, { headers }),
       ])
       const classesData = await classesRes.json()
       setClasses(classesData)
@@ -58,7 +60,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
       setStudents(studentsList)
       setTopics(await topicsRes.json())
       setTemplates(await templatesRes.json())
-      setEvaluations(await evalRes.json())
+      // setEvaluations(await evalRes.json())
     } catch (err) {
       console.error('Error fetching data:', err)
     }
