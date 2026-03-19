@@ -62,11 +62,12 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     } catch (err) {
       console.error('Error fetching data:', err)
     }
-    try {
-      await fetchAiInstructions()
-    } catch (err) {
-      console.error('Error fetching AI instructions:', err)
-    }
+    // Temporarily commented out to debug loading issue
+    // try {
+    //   await fetchAiInstructions()
+    // } catch (err) {
+    //   console.error('Error fetching AI instructions:', err)
+    // }
     setLoading(false)
   }
 
