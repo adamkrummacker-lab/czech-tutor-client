@@ -127,12 +127,24 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
         ? { message: input, lectureContent: topic.description }
         : { message: input }
       
+      console.log('Sending chat request:', { endpoint: chatEndpoint, topicId: topic.id, topicLevel: topic.level });
+      
       const res = await fetch(chatEndpoint, {
         method: 'POST',
         headers: authHeaders(),
         body: JSON.stringify(requestBody),
       })
+      
+      console.log('Chat response status:', res.status);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Chat API error:', errorText);
+        throw new Error(`API Error: ${res.status} - ${errorText}`);
+      }
+      
       const data = await res.json()
+      console.log('Chat response data:', data);
       if (data.reply) {
         if (data.userMessageId) {
           setMessages(prev => prev.map(m => m.id === tempId ? { ...m, id: data.userMessageId } : m))
