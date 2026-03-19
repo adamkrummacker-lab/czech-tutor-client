@@ -61,17 +61,30 @@ export default function Settings({ api, authHeaders, user, setUser }) {
     setClassMessage(null)
 
     try {
+      const code = classCode.trim().toUpperCase()
       const res = await fetch(`${api}/api/classes/join`, {
         method: 'POST',
         headers: authHeaders(),
-        body: JSON.stringify({ code: classCode.trim() }),
+        body: JSON.stringify({ code }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Chyba při přihlášení do třídy')
+
+      let data
+      try {
+        data = await res.json()
+      } catch {
+        data = null
+      }
+
+      if (!res.ok) {
+        const errMsg = data?.error || `${res.status} ${res.statusText}`
+        throw new Error(errMsg)
+      }
+
       setClassMessageType('success')
       setClassMessage('✅ Přihlášeno do třídy! Stránka se obnoví...')
       setTimeout(() => window.location.reload(), 1200)
     } catch (err) {
+      console.error('Join class error:', err)
       setClassMessageType('error')
       setClassMessage(err.message)
     } finally {
