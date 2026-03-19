@@ -111,7 +111,7 @@ export default function App() {
 
       <main className="main">
         {page === 'dashboard' && user.role === 'teacher' && (
-          <TeacherDashboardSimple api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} />
+          <TeacherDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} />
         )}
         {page === 'dashboard' && user.role === 'student' && (
           <StudentDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} />
