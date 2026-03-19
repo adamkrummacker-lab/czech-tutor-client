@@ -18,12 +18,14 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
           fetch(`${api}/api/topics`, { headers }).then(r => r.json()),
           fetch(`${api}/api/gamification`, { headers }).then(r => r.json()),
           fetch(`${api}/api/classes/me`, { headers }).then(r => r.json()),
-          fetch(`${api}/api/my-lectures`, { headers }).then(r => r.json()),
+          // Temporarily use topics endpoint to test if API calls work
+          fetch(`${api}/api/topics`, { headers }).then(r => r.json()),
         ])
         setTopics(t)
         setGamification(g)
         setClassInfo(c)
-        setLectures(l)
+        // Temporarily set lectures to empty array to test UI
+        setLectures([])
       } catch (err) {
         setLoadError('Chyba při načítání dat. Zkus stránku obnovit.')
       } finally {
