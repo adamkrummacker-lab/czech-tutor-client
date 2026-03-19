@@ -25,6 +25,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     isGlobal: false
   })
   const [instructionLoading, setInstructionLoading] = useState(false)
+  const [viewingStudents, setViewingStudents] = useState(null)
 
   const fetchData = async () => {
     setLoading(true)
