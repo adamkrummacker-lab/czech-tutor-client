@@ -81,7 +81,7 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className={`app ${user.role === 'teacher' ? 'teacher-dashboard' : ''}`}>
       <nav className="navbar">
         <div className="nav-left">
           <span className="logo">👋 Kámo</span>

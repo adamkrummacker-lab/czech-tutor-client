@@ -626,6 +626,130 @@
   margin: 0.5rem 0;
 }
 
+/* === TEACHER DASHBOARD STYLING === */
+.teacher-dashboard {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+}
+
+.teacher-dashboard .navbar {
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.teacher-dashboard .nav-tab {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.teacher-dashboard .nav-tab:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.teacher-dashboard .nav-tab.active {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  border-color: #dc2626;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+
+.teacher-dashboard .section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.teacher-dashboard h2 {
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.teacher-dashboard .topic-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.teacher-dashboard .btn-delete {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  border: 1px solid #dc2626;
+  color: #ffffff;
+}
+
+.teacher-dashboard .btn-delete:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+.teacher-dashboard .btn-assign {
+  background: linear-gradient(135deg, #059669 0%, #dc2626 100%);
+  border: 1px solid #059669;
+  color: #ffffff;
+}
+
+.teacher-dashboard .btn-assign:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #059669 100%);
+  box-shadow: 0 4px 12px rgba(5, 148, 38, 0.25);
+}
+
+.teacher-dashboard .btn-view {
+  background: linear-gradient(135deg, #0891b2 0%, #059669 100%);
+  border: 1px solid #0891b2;
+  color: #ffffff;
+}
+
+.teacher-dashboard .btn-view:hover {
+  background: linear-gradient(135deg, #059669 0%, #0891b2 100%);
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.25);
+}
+
+.teacher-dashboard .ai-instructions-container {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.teacher-dashboard .instruction-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.teacher-dashboard .instruction-card:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.teacher-dashboard .btn-toggle {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  border: 1px solid #dc2626;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.teacher-dashboard .btn-toggle:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  transform: translateY(-2px);
+}
+
+.teacher-dashboard .form-actions button[type="submit"] {
+  background: linear-gradient(135deg, #059669 0%, #dc2626 100%);
+  border: 1px solid #059669;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.teacher-dashboard .form-actions button[type="submit"]:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #059669 100%);
+  box-shadow: 0 4px 12px rgba(5, 148, 38, 0.25);
+}
+
 /* === DASHBOARD === */
 .dashboard { display: flex; flex-direction: column; gap: 2rem; }
 .section h2 { margin-bottom: 1rem; font-size: 1.3rem; }
