@@ -41,7 +41,7 @@ export default function TeacherDashboardFresh({ api, user, token, authHeaders, o
     try {
       const res = await fetch(`${api}/api/lectures`, {
         method: 'POST',
-        headers: authHeaders(),
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(lectureForm)
       })
 
@@ -61,7 +61,7 @@ export default function TeacherDashboardFresh({ api, user, token, authHeaders, o
     try {
       const res = await fetch(`${api}/api/lectures/${id}`, {
         method: 'DELETE',
-        headers: authHeaders()
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
       })
 
       if (!res.ok) throw new Error('Failed to delete lecture')
