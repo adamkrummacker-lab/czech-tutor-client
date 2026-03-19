@@ -121,10 +121,15 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
     setInput('')
 
     try {
-      const res = await fetch(`${api}/api/chat/${topic.id}`, {
+      const chatEndpoint = topic.level === 'assigned' ? `${api}/api/chat/lecture/${topic.id}` : `${api}/api/chat/${topic.id}`
+      const requestBody = topic.level === 'assigned' 
+        ? { message: input, lectureContent: topic.description }
+        : { message: input }
+      
+      const res = await fetch(chatEndpoint, {
         method: 'POST',
         headers: authHeaders(),
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify(requestBody),
       })
       const data = await res.json()
       if (data.reply) {

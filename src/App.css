@@ -674,6 +674,31 @@
   padding-top: 0.5rem;
 }
 
+.lecture-actions {
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-chat {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border: 1px solid #3b82f6;
+  color: #ffffff;
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.btn-chat:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
 /* === LECTURE ASSIGNMENTS === */
 .assignment-form {
   background: rgba(255, 255, 255, 0.08);

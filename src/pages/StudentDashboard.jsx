@@ -109,6 +109,19 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
                 <div className="lecture-meta">
                   Přiřazeno: {new Date(lecture.created_at).toLocaleDateString('cs-CZ')}
                 </div>
+                <div className="lecture-actions">
+                  <button 
+                    className="btn-chat"
+                    onClick={() => onOpenChat({
+                      id: lecture.id,
+                      title: lecture.title,
+                      description: lecture.content,
+                      level: 'assigned'
+                    })}
+                  >
+                    💬 Začít chat o přednášce
+                  </button>
+                </div>
               </div>
             ))}
           </div>
