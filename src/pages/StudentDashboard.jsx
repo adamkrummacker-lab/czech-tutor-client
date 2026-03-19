@@ -15,15 +15,16 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
       setLoadError(null)
       const headers = { 'Authorization': `Bearer ${token}` }
       try {
-        const [t, c] = await Promise.all([
+        const [t, c, l] = await Promise.all([
           fetch(`${api}/api/topics`, { headers }).then(r => r.json()),
           fetch(`${api}/api/classes/me`, { headers }).then(r => r.json()),
+          fetch(`${api}/api/my-lectures`, { headers }).then(r => r.json()),
         ])
         setTopics(t)
         setClassInfo(c)
         // Set default gamification data
         setGamification({ xp: 0, streak: 0, badges: [], allBadges: [] })
-        setLectures([])
+        setLectures(l)
       } catch (err) {
         setLoadError('Chyba při načítání dat. Zkus stránku obnovit.')
       } finally {
