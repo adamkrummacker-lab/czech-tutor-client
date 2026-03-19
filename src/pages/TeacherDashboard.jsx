@@ -25,46 +25,53 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     isGlobal: false
   })
   const [instructionLoading, setInstructionLoading] = useState(false)
+  const [evaluations, setEvaluations] = useState([])
+  const [showEvaluations, setShowEvaluations] = useState(false)
+  const [gradingStudent, setGradingStudent] = useState(null)
+  const [gradingForm, setGradingForm] = useState({
+    score: '',
+    grade: '',
+    evaluation: ''
+  })
   const [viewingStudents, setViewingStudents] = useState(null)
 
   const fetchData = async () => {
     setLoading(true)
     const headers = { 'Authorization': `Bearer ${token}` }
-    const [topicsRes, classesRes, templatesRes] = await Promise.all([
+    const [topicsRes, classesRes, templatesRes, evalRes] = await Promise.all([
       fetch(`${api}/api/topics`, { headers }),
       fetch(`${api}/api/classes`, { headers }),
       fetch(`${api}/api/templates`, { headers }),
+      fetch(`${api}/api/me/evaluations`, { headers }),
     ])
     const classesData = await classesRes.json()
     setClasses(classesData)
     const studentsList = []
     for (const c of classesData) {
       for (const s of c.students || []) {
-        if (!studentsList.some(st => st.id === s.id)) studentsList.push(s)
+        if (!studentsList.some(st => st.id === s.id)) {
+          studentsList.push(s)
+        }
       }
     }
     setStudents(studentsList)
     setTopics(await topicsRes.json())
     setTemplates(await templatesRes.json())
+    setEvaluations(await evalRes.json())
     await fetchAiInstructions()
     setLoading(false)
   }
 
-  useEffect(() => { fetchData() }, [])
-
-  const createTopic = async (e) => {
-    e.preventDefault()
-    if (!title.trim()) return
-    await fetch(`${api}/api/topics`, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ title, description, level, minMessages }),
-    })
-    setTitle('')
-    setDescription('')
-    setLevel('A2')
-    setMinMessages(10)
-    fetchData()
+  const fetchEvaluations = async () => {
+    try {
+      const res = await fetch(`${api}/api/me/evaluations`, { 
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const data = await res.json()
+      setEvaluations(data)
+    } catch (err) {
+      console.error('Failed to fetch evaluations:', err)
+    }
   }
 
   const createClass = async (e) => {
@@ -436,6 +443,80 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
               <div className="empty-state">
                 <p>Ještě nemáte žádné AI instrukce.</p>
                 <p>Vytvořte globální instrukce nebo instrukce pro konkrétní témata.</p>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+
+      <section className="section">
+        <div className="section-header">
+          <h2>📊 Hodnocení studentů</h2>
+          <button 
+            className="btn-toggle" 
+            onClick={() => setShowEvaluations(!showEvaluations)}
+          >
+            {showEvaluations ? '✕ Skrýt' : '📈 Zobrazit hodnocení'}
+          </button>
+        </div>
+
+        {showEvaluations && (
+          <div className="evaluations-container">
+            <div className="evaluations-summary">
+              <h3>📈 Statistiky hodnocení</h3>
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <div className="stat-number">{evaluations.length}</div>
+                  <div className="stat-label">Celkem hodnocení</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-number">
+                    {evaluations.length > 0 ? 
+                      (evaluations.reduce((sum, e) => sum + (e.score || 0), 0) / evaluations.length).toFixed(1) : 
+                      '0'
+                    }
+                  </div>
+                  <div className="stat-label">Průměrné skóre</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-number">
+                    {evaluations.length > 0 ? 
+                      (evaluations.reduce((sum, e) => sum + (e.grade || 0), 0) / evaluations.length).toFixed(1) : 
+                      '0'
+                    }
+                  </div>
+                  <div className="stat-label">Průměrná známka</div>
+                </div>
+              </div>
+            </div>
+
+            {evaluations.length > 0 && (
+              <div className="evaluations-list">
+                <h3>📝 Poslední hodnocení</h3>
+                {evaluations.slice(0, 10).map(evaluation => (
+                  <div key={evaluation.id} className="evaluation-card">
+                    <div className="evaluation-header">
+                      <span className="evaluation-topic">{evaluation.topic}</span>
+                      <span className="evaluation-date">
+                        {new Date(evaluation.created_at).toLocaleDateString('cs-CZ')}
+                      </span>
+                    </div>
+                    <div className="evaluation-scores">
+                      <span className="score-badge">Skóre: {evaluation.score}/10</span>
+                      <span className="grade-badge">Známka: {evaluation.grade}/5</span>
+                    </div>
+                    <div className="evaluation-content">
+                      {evaluation.evaluation}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {evaluations.length === 0 && (
+              <div className="empty-state">
+                <p>Zatím žádná hodnocení.</p>
+                <p>Hodnocení studentů se zobrazí zde po jejich dokončení konverzací.</p>
               </div>
             )}
           </div>
