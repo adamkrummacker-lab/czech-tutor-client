@@ -252,6 +252,16 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                 <div key={cls.id} className="class-card">
                   <div className="class-header">
                     <h3>{cls.name}</h3>
+                    <div className="class-stats">
+                      <span className="stat-item">
+                        <span className="stat-number">{cls.students?.length || 0}</span>
+                        <span className="stat-label">žáků</span>
+                      </span>
+                      <span className="stat-item">
+                        <span className="stat-number">{cls.join_code}</span>
+                        <span className="stat-label">kód</span>
+                      </span>
+                    </div>
                     <div className="class-code">
                       <span>Kód: <strong>{cls.join_code}</strong></span>
                       <button
@@ -264,15 +274,61 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                     </div>
                   </div>
                   <div className="class-students">
-                    <strong>Žáci ({cls.students?.length || 0}):</strong>
-                    {cls.students?.length ? (
+                    <div className="students-header">
+                      <strong>Žáci ({cls.students?.length || 0})</strong>
+                      <span className="students-actions">
+                        <button 
+                          className="btn-view-students"
+                          onClick={() => setViewingStudents(cls.id)}
+                        >
+                          👥 Zobrazit žáky
+                        </button>
+                      </span>
+                    </div>
+                    {viewingStudents === cls.id ? (
+                      <div className="students-list">
+                        <h4>👥 {cls.name} - Žáci</h4>
+                        <div className="students-grid">
+                          {cls.students?.map(s => (
+                            <div key={s.id} className="student-card">
+                              <div className="student-info">
+                                <div className="student-name">{s.name}</div>
+                                <div className="student-username">@{s.username}</div>
+                              </div>
+                              <div className="student-stats">
+                                <span className="xp">🌟 {s.xp || 0}</span>
+                                <span className="streak">🔥 {s.streak || 0}</span>
+                              </div>
+                              <div className="student-actions">
+                                <button 
+                                  className="btn-chat"
+                                  onClick={() => onOpenChat(null, s)}
+                                >
+                                  💬 Chatovat
+                                </button>
+                                <button 
+                                  className="btn-assign"
+                                  onClick={() => setShowAssignModal(true)}
+                                >
+                                  📚 Přiřadit téma
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <button 
+                          className="btn-close-students"
+                          onClick={() => setViewingStudents(null)}
+                        >
+                          ✕ Zavřít
+                        </button>
+                      </div>
+                    ) : (
                       <ul>
-                        {cls.students.map(s => (
+                        {cls.students?.map(s => (
                           <li key={s.id}>{s.name} ({s.username})</li>
                         ))}
                       </ul>
-                    ) : (
-                      <p className="empty">Žádní žáci zatím.</p>
                     )}
                   </div>
                 </div>
