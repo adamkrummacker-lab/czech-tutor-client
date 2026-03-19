@@ -7,6 +7,7 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
   const [lectures, setLectures] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
+  const [version, setVersion] = useState(Date.now())
 
   useEffect(() => {
     const fetchData = async () => {
