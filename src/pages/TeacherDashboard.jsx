@@ -16,6 +16,15 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [copiedCode, setCopiedCode] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showTemplates, setShowTemplates] = useState(false)
+  const [aiInstructions, setAiInstructions] = useState([])
+  const [showAiInstructions, setShowAiInstructions] = useState(false)
+  const [editingInstruction, setEditingInstruction] = useState(null)
+  const [instructionForm, setInstructionForm] = useState({
+    instructions: '',
+    topicId: null,
+    isGlobal: false
+  })
+  const [instructionLoading, setInstructionLoading] = useState(false)
 
   const fetchData = async () => {
     setLoading(true)
@@ -36,6 +45,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     setStudents(studentsList)
     setTopics(await topicsRes.json())
     setTemplates(await templatesRes.json())
+    await fetchAiInstructions()
     setLoading(false)
   }
 
@@ -105,6 +115,88 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     setDescription(t.description)
     setLevel(t.level)
     setShowTemplates(false)
+  }
+
+  const fetchAiInstructions = async () => {
+    try {
+      const res = await fetch(`${api}/api/ai-instructions`, { 
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const data = await res.json()
+      setAiInstructions(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Failed to fetch AI instructions:', err)
+    }
+  }
+
+  const saveInstruction = async (e) => {
+    e.preventDefault()
+    if (!instructionForm.instructions.trim()) return
+
+    setInstructionLoading(true)
+    try {
+      const method = editingInstruction ? 'PUT' : 'POST'
+      const url = editingInstruction 
+        ? `${api}/api/ai-instructions/${editingInstruction.id}`
+        : `${api}/api/ai-instructions`
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(instructionForm)
+      })
+
+      if (!res.ok) throw new Error('Failed to save instruction')
+
+      setClassMessageType('success')
+      setClassMessage(editingInstruction ? '✅ AI instrukce aktualizovány' : '✅ AI instrukce uloženy')
+      
+      // Reset form
+      setInstructionForm({ instructions: '', topicId: null, isGlobal: false })
+      setEditingInstruction(null)
+      
+      // Refresh instructions
+      await fetchAiInstructions()
+    } catch (err) {
+      setClassMessageType('error')
+      setClassMessage('❌ Chyba při ukládání instrukcí')
+    } finally {
+      setInstructionLoading(false)
+    }
+  }
+
+  const editInstruction = (instruction) => {
+    setEditingInstruction(instruction)
+    setInstructionForm({
+      instructions: instruction.instructions,
+      topicId: instruction.topic_id,
+      isGlobal: instruction.is_global
+    })
+  }
+
+  const deleteInstruction = async (id) => {
+    if (!confirm('Opravdu chcete smazat tyto AI instrukce?')) return
+
+    try {
+      const res = await fetch(`${api}/api/ai-instructions/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+
+      if (!res.ok) throw new Error('Failed to delete instruction')
+
+      setClassMessageType('success')
+      setClassMessage('✅ AI instrukce smazány')
+      
+      // Refresh instructions
+      await fetchAiInstructions()
+    } catch (err) {
+      setClassMessageType('error')
+      setClassMessage('❌ Chyba při mazání instrukcí')
+    }
   }
 
   const assignTopic = async (topicId, studentId) => {
@@ -187,6 +279,123 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
               ))}
             </div>
           </>
+        )}
+      </section>
+
+      <section className="section">
+        <div className="section-header">
+          <h2>🤖 AI Instrukce</h2>
+          <button 
+            className="btn-toggle" 
+            onClick={() => setShowAiInstructions(!showAiInstructions)}
+          >
+            {showAiInstructions ? '✕ Skrýt' : '📝 Spravovat instrukce'}
+          </button>
+        </div>
+
+        {showAiInstructions && (
+          <div className="ai-instructions-container">
+            <div className="instruction-form-container">
+              <h3>{editingInstruction ? 'Upravit instrukce' : 'Nové AI instrukce'}</h3>
+              <form className="topic-form" onSubmit={saveInstruction}>
+                <div className="form-group">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={instructionForm.isGlobal}
+                      onChange={e => setInstructionForm(prev => ({
+                        ...prev,
+                        isGlobal: e.target.checked,
+                        topicId: e.target.checked ? null : prev.topicId
+                      }))}
+                    />
+                    Globální instrukce (pro všechna témata)
+                  </label>
+                </div>
+
+                {!instructionForm.isGlobal && (
+                  <div className="form-group">
+                    <label>Specifické téma (nepovinné)</label>
+                    <select
+                      value={instructionForm.topicId || ''}
+                      onChange={e => setInstructionForm(prev => ({
+                        ...prev,
+                        topicId: e.target.value ? Number(e.target.value) : null
+                      }))}
+                    >
+                      <option value="">-- Všechna témata --</option>
+                      {topics.map(t => (
+                        <option key={t.id} value={t.id}>{t.title}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <label>AI instrukce</label>
+                  <textarea
+                    placeholder="Zadejte instrukce pro AI... Např: 'Zaměř se na konverzaci o každodenním životě, používej jednoduché věty a opravuj chyby v gramatice.'"
+                    value={instructionForm.instructions}
+                    onChange={e => setInstructionForm(prev => ({
+                      ...prev,
+                      instructions: e.target.value
+                    }))}
+                    rows={4}
+                    required
+                  />
+                </div>
+
+                <div className="form-actions">
+                  <button type="submit" disabled={instructionLoading}>
+                    {instructionLoading ? 'Ukládám...' : (editingInstruction ? 'Aktualizovat' : 'Uložit')}
+                  </button>
+                  {editingInstruction && (
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setEditingInstruction(null)
+                        setInstructionForm({ instructions: '', topicId: null, isGlobal: false })
+                      }}
+                    >
+                      Zrušit
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {aiInstructions.length > 0 && (
+              <div className="instructions-list">
+                <h3>Uložené instrukce</h3>
+                {aiInstructions.map(instruction => (
+                  <div key={instruction.id} className="instruction-card">
+                    <div className="instruction-header">
+                      <span className="instruction-type">
+                        {instruction.is_global ? '🌍 Globální' : `📚 ${instruction.topic_title || 'Neznámé téma'}`}
+                      </span>
+                      <div className="instruction-actions">
+                        <button onClick={() => editInstruction(instruction)}>✏️</button>
+                        <button onClick={() => deleteInstruction(instruction.id)}>🗑️</button>
+                      </div>
+                    </div>
+                    <div className="instruction-content">
+                      {instruction.instructions}
+                    </div>
+                    <div className="instruction-meta">
+                      Aktualizováno: {new Date(instruction.updated_at).toLocaleDateString('cs-CZ')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {aiInstructions.length === 0 && (
+              <div className="empty-state">
+                <p>Ještě nemáte žádné AI instrukce.</p>
+                <p>Vytvořte globální instrukce nebo instrukce pro konkrétní témata.</p>
+              </div>
+            )}
+          </div>
         )}
       </section>
 
