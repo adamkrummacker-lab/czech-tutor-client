@@ -13,7 +13,7 @@ import './App.css'
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 export default function App() {
-  const [user, setUser] = useState(null)
+  const [user, setUserState] = useState(null)
   const [page, setPage] = useState('dashboard')
   const [activeTopic, setActiveTopic] = useState(null)
   const [viewingStudent, setViewingStudent] = useState(null)
@@ -25,6 +25,26 @@ export default function App() {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
   })
+
+  const setUser = (u) => {
+    setUserState(u)
+    if (u) {
+      window.localStorage.setItem('kamoUser', JSON.stringify(u))
+    } else {
+      window.localStorage.removeItem('kamoUser')
+    }
+  }
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem('kamoUser')
+    if (saved) {
+      try {
+        setUserState(JSON.parse(saved))
+      } catch {
+        window.localStorage.removeItem('kamoUser')
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const theme = user?.preferences?.theme || 'dark'
