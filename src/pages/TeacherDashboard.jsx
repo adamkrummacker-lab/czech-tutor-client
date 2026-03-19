@@ -38,27 +38,35 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const fetchData = async () => {
     setLoading(true)
     const headers = { 'Authorization': `Bearer ${token}` }
-    const [topicsRes, classesRes, templatesRes, evalRes] = await Promise.all([
-      fetch(`${api}/api/topics`, { headers }),
-      fetch(`${api}/api/classes`, { headers }),
-      fetch(`${api}/api/templates`, { headers }),
-      fetch(`${api}/api/me/evaluations`, { headers }),
-    ])
-    const classesData = await classesRes.json()
-    setClasses(classesData)
-    const studentsList = []
-    for (const c of classesData) {
-      for (const s of c.students || []) {
-        if (!studentsList.some(st => st.id === s.id)) {
-          studentsList.push(s)
+    try {
+      const [topicsRes, classesRes, templatesRes, evalRes] = await Promise.all([
+        fetch(`${api}/api/topics`, { headers }),
+        fetch(`${api}/api/classes`, { headers }),
+        fetch(`${api}/api/templates`, { headers }),
+        fetch(`${api}/api/me/evaluations`, { headers }),
+      ])
+      const classesData = await classesRes.json()
+      setClasses(classesData)
+      const studentsList = []
+      for (const c of classesData) {
+        for (const s of c.students || []) {
+          if (!studentsList.some(st => st.id === s.id)) {
+            studentsList.push(s)
+          }
         }
       }
+      setStudents(studentsList)
+      setTopics(await topicsRes.json())
+      setTemplates(await templatesRes.json())
+      setEvaluations(await evalRes.json())
+    } catch (err) {
+      console.error('Error fetching data:', err)
     }
-    setStudents(studentsList)
-    setTopics(await topicsRes.json())
-    setTemplates(await templatesRes.json())
-    setEvaluations(await evalRes.json())
-    await fetchAiInstructions()
+    try {
+      await fetchAiInstructions()
+    } catch (err) {
+      console.error('Error fetching AI instructions:', err)
+    }
     setLoading(false)
   }
 
