@@ -77,18 +77,34 @@
 [data-role="teacher"] .btn-templates,
 [data-role="teacher"] .btn-secondary,
 [data-role="teacher"] .btn-evaluate,
-[data-role="teacher"] .btn-export {
-  border-color: #64748b;
-  color: #1f2a44;
+[data-role="teacher"] .btn-export,
+[data-role="teacher"] .btn-logout,
+[data-role="teacher"] .btn-submit {
+  background: #f5f7fb !important;
+  border: 1px solid #d3dae6 !important;
+  color: #1f2a44 !important;
 }
 
 [data-role="teacher"] .btn-level:hover,
 [data-role="teacher"] .btn-templates:hover,
 [data-role="teacher"] .btn-secondary:hover,
 [data-role="teacher"] .btn-evaluate:hover,
-[data-role="teacher"] .btn-export:hover {
-  border-color: #475569;
-  color: #475569;
+[data-role="teacher"] .btn-export:hover,
+[data-role="teacher"] .btn-logout:hover,
+[data-role="teacher"] .btn-submit:hover {
+  background: #edf2f7 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-role="teacher"] .btn-logout {
+  background: #eef2f6 !important;
+  color: #1f2a44 !important;
+  border: 1px solid #d3dae6 !important;
+}
+
+[data-role="teacher"] .btn-logout:hover {
+  background: #e2e8f0 !important;
 }
 
 
