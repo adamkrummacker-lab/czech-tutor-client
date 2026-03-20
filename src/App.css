@@ -19,59 +19,59 @@
 }
 
 [data-role="teacher"] {
-  --bg: #f8f4ec; /* béžový základ */
-  --panel: #ffffff; /* bílý panel */
-  --border: #e6d9c7;
-  --text: #1e293b;
-  --muted: #64748b;
-  --muted2: #94a3b8;
-  --accent: #3b82f6;
-  --danger: #dc2626;
-  --success: #16a34a;
+  --bg: #0f172a; /* tmavě navy základ */
+  --panel: #1e293b;
+  --border: #334155;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --muted2: #cbd5e1;
+  --accent: #60a5fa;
+  --danger: #f97316;
+  --success: #22c55e;
 
-  --bubble-user: rgba(14, 165, 233, 0.95);
-  --bubble-user-text: #0d1f2b;
-  --bubble-assistant: rgba(255, 255, 255, 0.95);
-  --bubble-assistant-text: #1e293b;
-  --bubble-border: rgba(148, 163, 184, 0.6);
-  --input-bg: #ffffff;
-  --input-text: #0f172a;
+  --bubble-user: rgba(37, 99, 235, 0.85);
+  --bubble-user-text: #ffffff;
+  --bubble-assistant: rgba(15, 23, 42, 0.88);
+  --bubble-assistant-text: #cbd5e1;
+  --bubble-border: rgba(96, 165, 250, 0.6);
+  --input-bg: #1e293b;
+  --input-text: #e2e8f0;
 
-  --panel: #ffffff;
-  --border: #d8c7b0;
+  --panel: #1e293b;
+  --border: #334155;
 }
 
 
 [data-role="teacher"] .gamification-bar {
-  background: #fff7ee;
-  border: 1px solid #e2d4bd;
+  background: #111b2f;
+  border: 1px solid #334155;
 }
 
 [data-role="teacher"] .xp-label,
 [data-role="teacher"] .streak-label,
 [data-role="teacher"] .streak-count {
-  color: #1b222d;
+  color: #e2e8f0;
 }
 
 [data-role="teacher"] .badges-section {
-  background: #fff9f1;
-  border: 1px solid #e2d4bd;
+  background: #0f172a;
+  border: 1px solid #334155;
 }
 
 [data-role="teacher"] .badge-card {
-  background: #ffffff;
-  border: 1px solid #d3dae6;
+  background: #1e293b;
+  border: 1px solid #334155;
 }
 
 [data-role="teacher"] .badge-card.earned {
-  border-color: #64748b;
-  background: rgba(100, 116, 139, 0.14);
+  border-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.15);
 }
 
 [data-role="teacher"] .xp-notification,
 [data-role="teacher"] .badge-notification {
-  background: linear-gradient(135deg, #64748b, #94a3b8);
-  color: #ffffff;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  color: #e2e8f0;
 }
 
 [data-role="teacher"] .btn-level,
@@ -81,9 +81,9 @@
 [data-role="teacher"] .btn-export,
 [data-role="teacher"] .btn-logout,
 [data-role="teacher"] .btn-submit {
-  background: #f5f7fb !important;
-  border: 1px solid #d3dae6 !important;
-  color: #1f2a44 !important;
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #e2e8f0 !important;
 }
 
 [data-role="teacher"] .btn-level:hover,
@@ -93,48 +93,48 @@
 [data-role="teacher"] .btn-export:hover,
 [data-role="teacher"] .btn-logout:hover,
 [data-role="teacher"] .btn-submit:hover {
-  background: #edf2f7 !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
+  background: #334155 !important;
+  color: #ffffff !important;
+  border-color: #60a5fa !important;
 }
 
 [data-role="teacher"] .btn-logout {
-  background: #eef2f6 !important;
-  color: #1f2a44 !important;
-  border: 1px solid #d3dae6 !important;
+  background: #334155 !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
 }
 
 [data-role="teacher"] .btn-logout:hover {
-  background: #e2e8f0 !important;
+  background: #1e293b !important;
 }
 
 
 [data-role="teacher"] .navbar {
-  background: linear-gradient(90deg, #fff9f1, #ffffff);
-  border-bottom: 1px solid #e2d4bd;
+  background: linear-gradient(90deg, #0f172a, #1e293b);
+  border-bottom: 1px solid #334155;
 }
 
 [data-role="teacher"] .teacher-dashboard .class-card,
 [data-role="teacher"] .teacher-dashboard .topic-card,
 [data-role="teacher"] .teacher-dashboard .lectures-list .lecture-card {
-  background: #ffffff;
-  border: 1px solid #e2d4bd;
-  box-shadow: 0 2px 10px rgba(27, 34, 45, 0.08);
+  background: #1e293b;
+  border: 1px solid #334155;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
 }
 
 [data-role="teacher"] .teacher-dashboard h2,
 [data-role="teacher"] .teacher-dashboard h3 {
-  color: #0f172a;
+  color: #e2e8f0;
 }
 
 [data-role="teacher"] .btn-primary {
-  background: #d8b78f;
-  color: #1b222d;
-  border-color: #c8a57b;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  border-color: #1d4ed8;
 }
 
 [data-role="teacher"] .btn-primary:hover {
-  background: #caa475;
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
   color: #ffffff;
 }
 
