@@ -148,36 +148,61 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   }, [fetchData])
 
   const deleteClass = async (classId) => {
-    if (!confirm('Opravdu chceš smazat tuto třídu? Všichni žáci budou odpojeni.')) return
-    if (!classId) {
+    if (!classId || typeof classId !== 'number') {
       setClassMessageType('error')
-      setClassMessage('Neplatné ID třídy')
+      setClassMessage('Neplatné ID třídy.')
       return
     }
+
+    const cls = classes.find(c => c.id === classId)
+    if (!cls) {
+      setClassMessageType('error')
+      setClassMessage('Třída nebyla nalezena v aktuálním seznamu. Aktualizuji.')
+      await fetchData().catch(() => {})
+      return
+    }
+
+    if (!confirm(`Opravdu chceš smazat třídu ${cls.name}? Všichni žáci budou odpojeni.`)) {
+      return
+    }
+
+    setClassMessageType('success')
+    setClassMessage('Mazání třídy probíhá...')
+
     try {
-      console.log('Deleting class', classId)
       const res = await fetch(`${api}/api/classes/${classId}`, {
         method: 'DELETE',
         headers: authHeaders(),
       })
+
+      if (res.status === 404) {
+        await fetchData()
+        setClassMessageType('error')
+        setClassMessage('Třída není na serveru nalezena (možná již byla smazána).')
+        return
+      }
+
       if (!res.ok) {
         let errMessage = `Chyba při mazání třídy: ${res.status}`
         try {
-          const err = await res.json()
-          errMessage = err.error || errMessage
+          const errBody = await res.json()
+          errMessage = errBody.error || errMessage
         } catch {
           const text = await res.text().catch(() => '')
-          if (text) errMessage = text
+          if (text) errMessage = `${errMessage} (${text})`
         }
         throw new Error(errMessage)
       }
+
       await fetchData()
       setClassMessageType('success')
-      setClassMessage('Třída byla smazána')
+      setClassMessage('Třída byla úspěšně smazána.')
     } catch (e) {
       console.error(`Delete class error`, e)
       setClassMessageType('error')
-      setClassMessage(e.message)
+      setClassMessage(e.message || 'Neznámá chyba při mazání třídy.')
+      // refresh after error to keep state clean
+      await fetchData().catch(() => {})
     }
   }
 
