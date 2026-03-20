@@ -394,28 +394,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                         </button>
                       </span>
                     </div>
-                    {viewingStudents === cls.id ? (
-                      <div className="students-list">
-                        <h4>👥 {cls.name} - Žáci</h4>
-                        <div className="students-grid">
-                          {cls.students?.map(s => (
-                            <div key={s.id} className="student-card">
-                              <div className="student-info">
-                                <div className="student-name">{s.name}</div>
-                                <div className="student-username">@{s.username}</div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <button 
-                          type="button"
-                          className="btn-close-students"
-                          onClick={closeStudentView}
-                        >
-                          ✕ Zavřít žáky
-                        </button>
-                      </div>
-                    ) : (
+                    {viewingStudents === cls.id && (
                       <div className="students-list">
                         <h4>👥 {cls.name} - Žáci</h4>
                         <div className="students-grid">
