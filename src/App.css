@@ -39,10 +39,10 @@
 }
 
 [data-role="student"] {
-  --bg: #f7fbff;
-  --panel: #ffffff;
-  --border: #dbeafe;
-  --text: #0f172a;
+  --bg: #f8f4ec; /* béžový základ */
+  --panel: #ffffff; /* bílý panel */
+  --border: #e6d9c7;
+  --text: #1e293b;
   --muted: #64748b;
   --muted2: #94a3b8;
   --accent: #3b82f6;
@@ -50,16 +50,26 @@
   --success: #16a34a;
 
   --bubble-user: rgba(14, 165, 233, 0.95);
-  --bubble-user-text: #0d1f2b; /* tmavý text pro lepší kontrast */
-  --bubble-assistant: rgba(219, 234, 254, 0.95);
-  --bubble-assistant-text: #0f172a;
-  --bubble-border: rgba(59, 130, 246, 0.4);
-  --input-bg: #f1f5f9;
+  --bubble-user-text: #0d1f2b;
+  --bubble-assistant: rgba(255, 255, 255, 0.95);
+  --bubble-assistant-text: #1e293b;
+  --bubble-border: rgba(148, 163, 184, 0.6);
+  --input-bg: #ffffff;
   --input-text: #0f172a;
 
-  --panel: #eef4ff;
-  --border: #bfdbfe;
+  --panel: #ffffff;
+  --border: #d8c7b0;
 }
+
+[data-role="student"] .navbar {
+  background: #fffaf1;
+  border-bottom: 1px solid #d8c7b0;
+}
+
+[data-role="student"] .student-dashboard {
+  background: var(--bg);
+}
+
 
 [data-theme="light"] {
   --bg: #f8fafc;
