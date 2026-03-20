@@ -123,8 +123,10 @@
 }
 
 [data-role="teacher"] .teacher-dashboard h2,
-[data-role="teacher"] .teacher-dashboard h3 {
-  color: #e2e8f0;
+[data-role="teacher"] .teacher-dashboard h3,
+[data-role="teacher"] .teacher-greeting h1,
+[data-role="teacher"] .teacher-greeting p {
+  color: #ffffff;
 }
 
 [data-role="teacher"] .btn-primary {
