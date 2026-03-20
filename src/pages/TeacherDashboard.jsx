@@ -174,10 +174,10 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
       await fetchData()
       setClassMessageType('success')
       setClassMessage('Třída byla smazána')
-    } catch (err) {
-      console.error('Delete class error', err)
+    } catch (e) {
+      console.error(`Delete class error`, e)
       setClassMessageType('error')
-      setClassMessage(err.message)
+      setClassMessage(e.message)
     }
   }
 
