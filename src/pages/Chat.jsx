@@ -260,7 +260,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
       }
 
       if (!res.ok) {
-        const errMsg = (data && data.error) || `${res.status} ${res.statusText}`
+        const errMsg = (data && data.error) || text || `${res.status} ${res.statusText}`
         setSubmitError(`Chyba při odevzdání: ${errMsg}`)
         console.error('Submit work error', res.status, errMsg, text)
         return
