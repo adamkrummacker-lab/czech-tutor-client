@@ -29,6 +29,8 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [showEvaluations, setShowEvaluations] = useState(false)
   const [viewingStudents, setViewingStudents] = useState(null)
 
+  const closeStudentView = () => setViewingStudents(null)
+
   const TOPICS_BACKUP_KEY = 'kamo-topics-backup'
   const CLASSES_BACKUP_KEY = 'kamo-classes-backup'
 
@@ -371,6 +373,13 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                       >
                         {copiedCode === cls.join_code ? '✅ Zkopírováno' : '📋 Kopírovat'}
                       </button>
+                      <button
+                        type="button"
+                        className="btn-close-class"
+                        onClick={() => closeStudentView()}
+                      >
+                        ✕ Zavřít třídu
+                      </button>
                     </div>
                   </div>
                   <div className="class-students">
@@ -399,10 +408,11 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                           ))}
                         </div>
                         <button 
+                          type="button"
                           className="btn-close-students"
-                          onClick={() => setViewingStudents(null)}
+                          onClick={closeStudentView}
                         >
-                          ✕ Zavřít
+                          ✕ Zavřít žáky
                         </button>
                       </div>
                     ) : (
@@ -419,10 +429,11 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                           ))}
                         </div>
                         <button 
+                          type="button"
                           className="btn-close-students"
-                          onClick={() => setViewingStudents(null)}
+                          onClick={closeStudentView}
                         >
-                          ✕ Zavřít
+                          ✕ Zavřít žáky
                         </button>
                       </div>
                     )}
