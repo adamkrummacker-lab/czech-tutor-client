@@ -124,6 +124,13 @@
 
 [data-role="teacher"] .teacher-dashboard h2,
 [data-role="teacher"] .teacher-dashboard h3,
+[data-role="teacher"] .class-header h3,
+[data-role="teacher"] .class-code span,
+[data-role="teacher"] .class-code strong,
+[data-role="teacher"] .students-header strong,
+[data-role="teacher"] .students-list h4,
+[data-role="teacher"] .student-name,
+[data-role="teacher"] .student-username,
 [data-role="teacher"] .teacher-greeting h1,
 [data-role="teacher"] .teacher-greeting p {
   color: #ffffff;
