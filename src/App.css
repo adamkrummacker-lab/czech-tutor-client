@@ -25,11 +25,11 @@
   --text: #0f172a;
   --muted: #64748b;
   --muted2: #94a3b8;
-  --accent: #64748b; /* tlumená šedá modř */
-  --danger: #475569; /* neutrálni tmavý */
+  --accent: #64748b;
+  --danger: #475569;
   --success: #16a34a;
 
-  --bubble-user: rgba(99, 102, 120, 0.1);
+  --bubble-user: rgba(99, 102, 120, 0.09);
   --bubble-user-text: #0f172a;
   --bubble-assistant: rgba(243, 244, 246, 0.95);
   --bubble-assistant-text: #0f172a;
@@ -40,6 +40,57 @@
   --panel: #ffffff;
   --border: #d3dae6;
 }
+
+[data-role="teacher"] .gamification-bar {
+  background: #f8fafc;
+  border: 1px solid #d3dae6;
+}
+
+[data-role="teacher"] .xp-label,
+[data-role="teacher"] .streak-label,
+[data-role="teacher"] .streak-count {
+  color: #1f2a44;
+}
+
+[data-role="teacher"] .badges-section {
+  background: #f8fafc;
+  border: 1px solid #d3dae6;
+}
+
+[data-role="teacher"] .badge-card {
+  background: #ffffff;
+  border: 1px solid #d3dae6;
+}
+
+[data-role="teacher"] .badge-card.earned {
+  border-color: #64748b;
+  background: rgba(100, 116, 139, 0.14);
+}
+
+[data-role="teacher"] .xp-notification,
+[data-role="teacher"] .badge-notification {
+  background: linear-gradient(135deg, #64748b, #94a3b8);
+  color: #ffffff;
+}
+
+[data-role="teacher"] .btn-level,
+[data-role="teacher"] .btn-templates,
+[data-role="teacher"] .btn-secondary,
+[data-role="teacher"] .btn-evaluate,
+[data-role="teacher"] .btn-export {
+  border-color: #64748b;
+  color: #1f2a44;
+}
+
+[data-role="teacher"] .btn-level:hover,
+[data-role="teacher"] .btn-templates:hover,
+[data-role="teacher"] .btn-secondary:hover,
+[data-role="teacher"] .btn-evaluate:hover,
+[data-role="teacher"] .btn-export:hover {
+  border-color: #475569;
+  color: #475569;
+}
+
 
 [data-role="teacher"] .navbar {
   background: linear-gradient(90deg, #f8fafc, #ffffff);
