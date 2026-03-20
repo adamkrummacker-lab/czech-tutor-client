@@ -1,13 +1,13 @@
 :root {
-  --bg: #f3f4f6; /* neutrální světle šedá */
-  --panel: #ffffff;
-  --border: #d2d6dc;
-  --text: #0f172a;
-  --muted: #64748b;
-  --muted2: #94a3b8;
-  --accent: #64748b;
-  --danger: #475569;
-  --success: #16a34a;
+  --bg: #cca95e; /* nový zlatavý základ */
+  --panel: #fbf6df;
+  --border: #c7a860;
+  --text: #2f2a23;
+  --muted: #5a4a39;
+  --muted2: #847258;
+  --accent: #916a2d;
+  --danger: #7a6248;
+  --success: #4f442f;
 
   --bubble-user: rgba(59, 130, 246, 0.85);
   --bubble-user-text: #ffffff;
@@ -19,27 +19,28 @@
 }
 
 [data-role="teacher"] {
-  --bg: #f5f7fb;
+  --bg: #f3efd8; /* krémově béžové */
   --panel: #ffffff;
-  --border: #d3dae6;
-  --text: #0f172a;
-  --muted: #64748b;
-  --muted2: #94a3b8;
-  --accent: #64748b;
-  --danger: #475569;
-  --success: #16a34a;
+  --border: #d2c5a2;
+  --text: #2f2a23;
+  --muted: #6f5f46;
+  --muted2: #8f826d;
+  --accent: #8e7247;
+  --danger: #7a6248;
+  --success: #5a4a30;
 
-  --bubble-user: rgba(99, 102, 120, 0.09);
-  --bubble-user-text: #0f172a;
-  --bubble-assistant: rgba(243, 244, 246, 0.95);
-  --bubble-assistant-text: #0f172a;
-  --bubble-border: rgba(148, 163, 184, 0.4);
-  --input-bg: #ffffff;
-  --input-text: #0f172a;
+  --bubble-user: rgba(223, 212, 184, 0.95);
+  --bubble-user-text: #2f2a23;
+  --bubble-assistant: rgba(255, 255, 255, 0.95);
+  --bubble-assistant-text: #2f2a23;
+  --bubble-border: rgba(160, 140, 102, 0.4);
+  --input-bg: #fffaf0;
+  --input-text: #2f2a23;
 
   --panel: #ffffff;
-  --border: #d3dae6;
+  --border: #d2c5a2;
 }
+
 
 [data-role="teacher"] .gamification-bar {
   background: #f8fafc;
