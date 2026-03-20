@@ -133,7 +133,9 @@
 [data-role="teacher"] .student-username,
 [data-role="teacher"] .section-header h2,
 [data-role="teacher"] .dashboard h2,
-[data-role="teacher"] .dashboard h3 {
+[data-role="teacher"] .dashboard h3,
+[data-role="teacher"] .teacher-greeting h1,
+[data-role="teacher"] .teacher-greeting p {
   color: #ffffff !important;
 }
 
