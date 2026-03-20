@@ -29,6 +29,39 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [showEvaluations, setShowEvaluations] = useState(false)
   const [viewingStudents, setViewingStudents] = useState(null)
 
+  const TOPICS_BACKUP_KEY = 'kamo-topics-backup'
+  const CLASSES_BACKUP_KEY = 'kamo-classes-backup'
+
+  const restoreFromBackup = useCallback(async (fetchedTopics, fetchedClasses) => {
+    const backupTopics = JSON.parse(localStorage.getItem(TOPICS_BACKUP_KEY) || '[]')
+    const backupClasses = JSON.parse(localStorage.getItem(CLASSES_BACKUP_KEY) || '[]')
+
+    if (fetchedClasses.length === 0 && backupClasses.length > 0) {
+      for (const cls of backupClasses) {
+        await fetch(`${api}/api/classes`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ name: cls.name })
+        })
+      }
+    }
+
+    if (fetchedTopics.length === 0 && backupTopics.length > 0) {
+      for (const topic of backupTopics) {
+        await fetch(`${api}/api/topics`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({
+            title: topic.title,
+            description: topic.description,
+            level: topic.level,
+            minMessages: topic.min_messages || 10
+          })
+        })
+      }
+    }
+  }, [api, authHeaders])
+
   const fetchAiInstructions = useCallback(async () => {
     try {
       const res = await fetch(`${api}/api/ai-instructions`, { 
@@ -76,8 +109,20 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
       }
       setStudents(studentsList)
 
-      setTopics(await topicsRes.json())
-      setTemplates(await templatesRes.json())
+      const topicsData = await topicsRes.json()
+      const templatesData = await templatesRes.json()
+      setTopics(topicsData)
+      setTemplates(templatesData)
+
+      localStorage.setItem(TOPICS_BACKUP_KEY, JSON.stringify(topicsData))
+      localStorage.setItem(CLASSES_BACKUP_KEY, JSON.stringify(classesData))
+
+      if ((classesData.length === 0 && localStorage.getItem(CLASSES_BACKUP_KEY)) || (topicsData.length === 0 && localStorage.getItem(TOPICS_BACKUP_KEY))) {
+        await restoreFromBackup(topicsData, classesData)
+        // znovu načteme po obnově
+        await fetchData()
+        return
+      }
 
       // Fetch AI instructions & evaluations for this teacher
       await fetchAiInstructions()
@@ -87,7 +132,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     } finally {
       setLoading(false)
     }
-  }, [api, token, fetchAiInstructions, fetchEvaluations])
+  }, [api, token, fetchAiInstructions, fetchEvaluations, restoreFromBackup])
 
   useEffect(() => {
     fetchData()
@@ -110,7 +155,11 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Nepodařilo se vytvořit téma.')
 
-      setTopics(prev => [data, ...prev])
+      setTopics(prev => {
+        const next = [data, ...prev]
+        localStorage.setItem(TOPICS_BACKUP_KEY, JSON.stringify(next))
+        return next
+      })
       setTitle('')
       setDescription('')
       setLevel('A2')
@@ -146,6 +195,11 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
       setClassMessageType('success')
       setClassMessage(`✅ Třída „${data.name}“ vytvořena! Kód je ${data.join_code}.`)
       setNewClassName('')
+      setClasses(prev => {
+        const next = [...prev, data]
+        localStorage.setItem(CLASSES_BACKUP_KEY, JSON.stringify(next))
+        return next
+      })
       fetchData()
     } catch (err) {
       setClassMessageType('error')
