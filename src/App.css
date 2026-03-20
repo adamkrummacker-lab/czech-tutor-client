@@ -133,13 +133,12 @@
 [data-role="teacher"] .student-username,
 [data-role="teacher"] .section-header h2,
 [data-role="teacher"] .ai-instructions-container h3,
-[data-role="teacher"] .ai-instructions-container label {
-  color: #0f172a;
-}
-
+[data-role="teacher"] .ai-instructions-container label,
 [data-role="teacher"] .teacher-greeting h1,
-[data-role="teacher"] .teacher-greeting p {
-  color: #ffffff;
+[data-role="teacher"] .teacher-greeting p,
+[data-role="teacher"] .dashboard h2,
+[data-role="teacher"] .dashboard h3 {
+  color: #ffffff !important;
 }
 
 [data-role="teacher"] .btn-primary {
