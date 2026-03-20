@@ -1,13 +1,13 @@
 :root {
-  --bg: #0f172a;
-  --panel: #1e293b;
-  --border: #334155;
-  --text: #e2e8f0;
-  --muted: #94a3b8;
-  --muted2: #64748b;
-  --accent: #3b82f6;
-  --danger: #dc2626;
-  --success: #22c55e;
+  --bg: #f3f4f6; /* neutrální světle šedá */
+  --panel: #ffffff;
+  --border: #d2d6dc;
+  --text: #0f172a;
+  --muted: #64748b;
+  --muted2: #94a3b8;
+  --accent: #64748b;
+  --danger: #475569;
+  --success: #16a34a;
 
   --bubble-user: rgba(59, 130, 246, 0.85);
   --bubble-user-text: #ffffff;
