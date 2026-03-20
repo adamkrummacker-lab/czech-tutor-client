@@ -149,16 +149,31 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
 
   const deleteClass = async (classId) => {
     if (!confirm('Opravdu chceš smazat tuto třídu? Všichni žáci budou odpojeni.')) return
+    if (!classId) {
+      setClassMessageType('error')
+      setClassMessage('Neplatné ID třídy')
+      return
+    }
     try {
+      console.log('Deleting class', classId)
       const res = await fetch(`${api}/api/classes/${classId}`, {
         method: 'DELETE',
         headers: authHeaders(),
       })
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.error || 'Chyba při mazání třídy')
+        let errMessage = `Chyba při mazání třídy: ${res.status}`
+        try {
+          const err = await res.json()
+          errMessage = err.error || errMessage
+        } catch {
+          const text = await res.text().catch(() => '')
+          if (text) errMessage = text
+        }
+        throw new Error(errMessage)
       }
       await fetchData()
+      setClassMessageType('success')
+      setClassMessage('Třída byla smazána')
     } catch (err) {
       console.error('Delete class error', err)
       setClassMessageType('error')
