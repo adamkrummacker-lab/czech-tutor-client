@@ -86,45 +86,52 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     }
   }, [api, token])
 
-  const fetchData = useCallback(async () => {
-    setLoading(true)
+  const loadData = useCallback(async () => {
     const headers = { 'Authorization': `Bearer ${token}` }
-    try {
-      const [topicsRes, classesRes, templatesRes] = await Promise.all([
-        fetch(`${api}/api/topics`, { headers }),
-        fetch(`${api}/api/classes`, { headers }),
-        fetch(`${api}/api/templates`, { headers }),
-      ])
+    const [topicsRes, classesRes, templatesRes] = await Promise.all([
+      fetch(`${api}/api/topics`, { headers }),
+      fetch(`${api}/api/classes`, { headers }),
+      fetch(`${api}/api/templates`, { headers }),
+    ])
 
-      const classesData = await classesRes.json()
-      setClasses(classesData)
+    const classesData = await classesRes.json()
+    setClasses(classesData)
 
-      const studentsList = []
-      for (const c of classesData) {
-        for (const s of c.students || []) {
-          if (!studentsList.some(st => st.id === s.id)) {
-            studentsList.push(s)
-          }
+    const studentsList = []
+    for (const c of classesData) {
+      for (const s of c.students || []) {
+        if (!studentsList.some(st => st.id === s.id)) {
+          studentsList.push(s)
         }
       }
-      setStudents(studentsList)
+    }
+    setStudents(studentsList)
 
-      const topicsData = await topicsRes.json()
-      const templatesData = await templatesRes.json()
-      setTopics(topicsData)
-      setTemplates(templatesData)
+    const topicsData = await topicsRes.json()
+    const templatesData = await templatesRes.json()
+    setTopics(topicsData)
+    setTemplates(templatesData)
 
-      localStorage.setItem(TOPICS_BACKUP_KEY, JSON.stringify(topicsData))
-      localStorage.setItem(CLASSES_BACKUP_KEY, JSON.stringify(classesData))
+    localStorage.setItem(TOPICS_BACKUP_KEY, JSON.stringify(topicsData))
+    localStorage.setItem(CLASSES_BACKUP_KEY, JSON.stringify(classesData))
 
-      if ((classesData.length === 0 && localStorage.getItem(CLASSES_BACKUP_KEY)) || (topicsData.length === 0 && localStorage.getItem(TOPICS_BACKUP_KEY))) {
+    return { topicsData, classesData }
+  }, [api, token])
+
+  const fetchData = useCallback(async () => {
+    setLoading(true)
+    try {
+      const { topicsData, classesData } = await loadData()
+
+      const backupTopics = localStorage.getItem(TOPICS_BACKUP_KEY)
+      const backupClasses = localStorage.getItem(CLASSES_BACKUP_KEY)
+      const needRestore = (classesData.length === 0 && backupClasses) || (topicsData.length === 0 && backupTopics)
+
+      if (needRestore) {
         await restoreFromBackup(topicsData, classesData)
-        // znovu načteme po obnově
-        await fetchData()
-        return
+        await loadData() // jen jednou další náběh
       }
 
-      // Fetch AI instructions & evaluations for this teacher
       await fetchAiInstructions()
       await fetchEvaluations()
     } catch (err) {
@@ -132,7 +139,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     } finally {
       setLoading(false)
     }
-  }, [api, token, fetchAiInstructions, fetchEvaluations, restoreFromBackup])
+  }, [loadData, restoreFromBackup, fetchAiInstructions, fetchEvaluations])
 
   useEffect(() => {
     fetchData()
