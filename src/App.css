@@ -61,6 +61,32 @@
   --border: #d8c7b0;
 }
 
+[data-role="student"] .gamification-bar {
+  background: #ffffff;
+  border: 1px solid #d8c7b0;
+}
+
+[data-role="student"] .xp-label,
+[data-role="student"] .streak-label,
+[data-role="student"] .streak-count {
+  color: #1e293b;
+}
+
+[data-role="student"] .badges-section {
+  background: #ffffff;
+  border: 1px solid #d8c7b0;
+}
+
+[data-role="student"] .badge-card {
+  background: #f8f4ec;
+  border-color: #d8c7b0;
+}
+
+[data-role="student"] .badge-name,
+[data-role="student"] .badge-emoji {
+  color: #1e293b;
+}
+
 [data-role="student"] .navbar {
   background: #fffaf1;
   border-bottom: 1px solid #d8c7b0;
