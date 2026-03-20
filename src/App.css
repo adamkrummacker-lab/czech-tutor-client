@@ -19,24 +19,51 @@
 }
 
 [data-role="teacher"] {
-  --bg: #0b1220;
-  --panel: #16213b;
-  --border: #2a3b55;
-  --text: #e2e8f0;
-  --muted: #94a3b8;
-  --muted2: #cbd5e1;
-  --accent: #2e8b57;
-  --danger: #ef4444;
-  --success: #22c55e;
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --border: #d3dae6;
+  --text: #0f172a;
+  --muted: #64748b;
+  --muted2: #94a3b8;
+  --accent: #2563eb;
+  --danger: #dc2626;
+  --success: #16a34a;
 
-  --bubble-user: rgba(34, 139, 230, 0.85);
-  --bubble-user-text: #ffffff;
-  --bubble-assistant: rgba(30, 41, 59, 0.9);
-  --bubble-assistant-text: #f1f5f9;
-  --bubble-border: rgba(100, 120, 150, 0.8);
-  --input-bg: #1e293b;
-  --input-text: #e2e8f0;
+  --bubble-user: rgba(99, 102, 120, 0.1);
+  --bubble-user-text: #0f172a;
+  --bubble-assistant: rgba(243, 244, 246, 0.95);
+  --bubble-assistant-text: #0f172a;
+  --bubble-border: rgba(148, 163, 184, 0.4);
+  --input-bg: #ffffff;
+  --input-text: #0f172a;
+
+  --panel: #ffffff;
+  --border: #d3dae6;
 }
+
+[data-role="teacher"] .navbar {
+  background: linear-gradient(90deg, #f8fafc, #ffffff);
+  border-bottom: 1px solid #d3dae6;
+}
+
+[data-role="teacher"] .teacher-dashboard .class-card,
+[data-role="teacher"] .teacher-dashboard .topic-card,
+[data-role="teacher"] .teacher-dashboard .lectures-list .lecture-card {
+  background: #ffffff;
+  border: 1px solid #d3dae6;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.07);
+}
+
+[data-role="teacher"] .teacher-dashboard h2,
+[data-role="teacher"] .teacher-dashboard h3 {
+  color: #0f172a;
+}
+
+[data-role="teacher"] .btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
 
 [data-role="student"] {
   --bg: #f8f4ec; /* béžový základ */
