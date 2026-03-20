@@ -52,9 +52,10 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const theme = user?.preferences?.theme || 'dark'
+    const isTeacher = user?.role === 'teacher'
+    const theme = isTeacher ? 'light' : (user?.preferences?.theme || 'dark')
     document.documentElement.setAttribute('data-theme', theme)
-  }, [user?.preferences?.theme])
+  }, [user?.role, user?.preferences?.theme])
 
   useEffect(() => {
     if (!user?.role) {
