@@ -38,18 +38,31 @@ export default function App() {
   useEffect(() => {
     const saved = window.localStorage.getItem('kamoUser')
     if (saved) {
+      let parsed = null
       try {
-        setUserState(JSON.parse(saved))
+        parsed = JSON.parse(saved)
       } catch {
         window.localStorage.removeItem('kamoUser')
       }
+      if (parsed) {
+        setUserState(parsed)
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
     const theme = user?.preferences?.theme || 'dark'
     document.documentElement.setAttribute('data-theme', theme)
   }, [user?.preferences?.theme])
+
+  useEffect(() => {
+    if (!user?.role) {
+      document.documentElement.removeAttribute('data-role')
+      return
+    }
+    document.documentElement.setAttribute('data-role', user.role)
+  }, [user?.role])
 
   useEffect(() => {
     if (!token) return

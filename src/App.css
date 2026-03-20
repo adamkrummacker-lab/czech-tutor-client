@@ -18,6 +18,47 @@
   --input-text: #e2e8f0;
 }
 
+[data-role="teacher"] {
+  --bg: #0b1220;
+  --panel: #16213b;
+  --border: #2a3b55;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --muted2: #cbd5e1;
+  --accent: #2e8b57;
+  --danger: #ef4444;
+  --success: #22c55e;
+
+  --bubble-user: rgba(34, 139, 230, 0.85);
+  --bubble-user-text: #ffffff;
+  --bubble-assistant: rgba(30, 41, 59, 0.9);
+  --bubble-assistant-text: #f1f5f9;
+  --bubble-border: rgba(100, 120, 150, 0.8);
+  --input-bg: #1e293b;
+  --input-text: #e2e8f0;
+}
+
+[data-role="student"] {
+  --bg: #f7fbff;
+  --panel: #ffffff;
+  --border: #dbeafe;
+  --text: #0f172a;
+  --muted: #64748b;
+  --muted2: #94a3b8;
+  --accent: #3b82f6;
+  --danger: #dc2626;
+  --success: #16a34a;
+
+  --bubble-user: rgba(14, 165, 233, 0.9);
+
+  --bubble-user-text: #ffffff;
+  --bubble-assistant: rgba(219, 234, 254, 0.95);
+  --bubble-assistant-text: #0f172a;
+  --bubble-border: rgba(148, 163, 184, 0.6);
+  --input-bg: #f1f5f9;
+  --input-text: #0f172a;
+}
+
 [data-theme="light"] {
   --bg: #f8fafc;
   --panel: #ffffff;
