@@ -246,10 +246,27 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
     try {
       const res = await fetch(`${api}/api/topics/${topic.id}/submit`, {
         method: 'POST',
-        headers: authHeaders(),
+        headers: {
+          ...authHeaders(),
+          'Content-Type': 'application/json',
+        },
       })
-      const data = await res.json()
-      if (data.ok) {
+      const text = await res.text()
+      let data
+      try {
+        data = JSON.parse(text)
+      } catch {
+        data = null
+      }
+
+      if (!res.ok) {
+        const errMsg = (data && data.error) || `${res.status} ${res.statusText}`
+        setSubmitError(`Chyba při odevzdání: ${errMsg}`)
+        console.error('Submit work error', res.status, errMsg, text)
+        return
+      }
+
+      if (data?.ok) {
         setSubmitted(true)
         setSubmitError(null)
         if (data.xp) {
@@ -262,10 +279,13 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
           }
         }, 500)
       } else {
-        setSubmitError(data.error || 'Chyba při odevzdání. Zkus to prosím znovu.')
+        const errMsg = (data && data.error) || 'Neznámá chyba při odevzdání.'
+        setSubmitError(errMsg)
+        console.error('Submit work non-ok response', data)
       }
     } catch (err) {
       setSubmitError('Chyba při odevzdání. Zkontroluj připojení a zkus to znovu.')
+      console.error('Submit work exception', err)
     } finally {
       setSubmitting(false)
     }
