@@ -85,6 +85,9 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [evaluations, setEvaluations] = useState([])
   const [showEvaluations, setShowEvaluations] = useState(false)
   const [viewingStudents, setViewingStudents] = useState(null)
+  const [assigningClassId, setAssigningClassId] = useState(null)
+  const [assignMessage, setAssignMessage] = useState(null)
+  const [assignMessageType, setAssignMessageType] = useState('success')
 
   const closeStudentView = () => setViewingStudents(null)
 
@@ -354,6 +357,74 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     setShowTemplates(false)
   }
 
+  const getStudentProgress = (studentId) => {
+    const assignedTopics = topics.filter(t => (t.assignedTo || []).includes(studentId))
+    const completed = assignedTopics.filter(t => t.submissions?.[studentId]).length
+    const total = assignedTopics.length
+    const rate = total ? Math.round((completed / total) * 100) : 0
+    return { total, completed, rate }
+  }
+
+  const createTopicFromTemplate = async (template) => {
+    const res = await fetch(`${api}/api/topics`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        title: template.title,
+        description: template.description,
+        level: template.level,
+        minMessages: template.minMessages || 8
+      })
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Nepodařilo se vytvořit téma')
+    return data
+  }
+
+  const getOrCreateA1Topics = async () => {
+    const existingByKey = new Map(
+      topics.map(t => [`${t.title}-${t.level}`, t])
+    )
+    const result = []
+    for (const t of A1_KIDS_TEMPLATES) {
+      const key = `${t.title}-${t.level}`
+      if (existingByKey.has(key)) {
+        result.push(existingByKey.get(key))
+      } else {
+        const created = await createTopicFromTemplate(t)
+        result.push(created)
+      }
+    }
+    return result
+  }
+
+  const assignA1PackageToClass = async (cls) => {
+    if (!cls?.id) return
+    setAssigningClassId(cls.id)
+    setAssignMessage(null)
+    try {
+      const topicsToAssign = await getOrCreateA1Topics()
+      const studentsInClass = cls.students || []
+      for (const topic of topicsToAssign) {
+        for (const student of studentsInClass) {
+          await fetch(`${api}/api/topics/${topic.id}/assign`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ studentId: student.id })
+          })
+        }
+      }
+      await fetchData()
+      setAssignMessageType('success')
+      setAssignMessage('✅ A1 balíček byl přiřazen celé třídě.')
+    } catch (err) {
+      setAssignMessageType('error')
+      setAssignMessage(err.message || '❌ Nepodařilo se přiřadit balíček.')
+    } finally {
+      setAssigningClassId(null)
+    }
+  }
+
   const saveInstruction = async (e) => {
     e.preventDefault()
     if (!instructionForm.instructions.trim()) return
@@ -492,6 +563,14 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                       </button>
                       <button
                         type="button"
+                        className="btn-assign-pack"
+                        disabled={assigningClassId === cls.id}
+                        onClick={() => assignA1PackageToClass(cls)}
+                      >
+                        {assigningClassId === cls.id ? '⏳ A1 balíček...' : '📦 A1 balíček třídě'}
+                      </button>
+                      <button
+                        type="button"
                         className="btn-close-class"
                         onClick={() => closeStudentView()}
                       >
@@ -520,12 +599,28 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                     {viewingStudents === cls.id && (
                       <div className="students-list">
                         <h4>👥 {cls.name} - Žáci</h4>
+                        {assignMessage && (
+                          <div className={`alert ${assignMessageType === 'error' ? 'alert-error' : 'alert-success'}`}>
+                            {assignMessage}
+                          </div>
+                        )}
                         <div className="students-grid">
                           {cls.students?.map(s => (
                             <div key={s.id} className="student-card">
                               <div className="student-info">
                                 <div className="student-name">{s.name}</div>
                                 <div className="student-username">@{s.username}</div>
+                              </div>
+                              <div className="student-progress">
+                                {(() => {
+                                  const p = getStudentProgress(s.id)
+                                  return (
+                                    <>
+                                      <span>{p.completed}/{p.total} hotovo</span>
+                                      <span>{p.rate}%</span>
+                                    </>
+                                  )
+                                })()}
                               </div>
                             </div>
                           ))}

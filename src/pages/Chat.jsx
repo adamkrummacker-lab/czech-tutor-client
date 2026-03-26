@@ -19,7 +19,9 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
   const [submitted, setSubmitted] = useState(!!topic.submitted_at)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState(null)
+  const [showIntro, setShowIntro] = useState(false)
   const messagesEndRef = useRef(null)
+  const inputRef = useRef(null)
 
   const REACTION_EMOJIS = ['👍', '❤️', '😂', '🤔', '🎉']
   const recognitionRef = useRef(null)
@@ -53,6 +55,14 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  useEffect(() => {
+    if (isStudent && !isReadOnly && messages.length === 0) {
+      setShowIntro(true)
+    } else {
+      setShowIntro(false)
+    }
+  }, [isStudent, isReadOnly, messages.length])
+
   const speakText = useCallback((text, msgIndex) => {
     window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(text)
@@ -83,6 +93,11 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
     window.speechSynthesis.cancel()
     setSpeakingMsgId(null)
   }, [])
+
+  const startLesson = () => {
+    setShowIntro(false)
+    setTimeout(() => inputRef.current?.focus(), 100)
+  }
 
   const toggleListening = useCallback(() => {
     if (!SpeechRecognition) {
@@ -307,6 +322,17 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
     )
   }
 
+  const progressRatio = Math.min(1, minMessages > 0 ? messageCount / minMessages : 0)
+  const kidScore = evaluationData?.score
+  const kidEmoji = kidScore >= 8 ? '😀' : kidScore >= 5 ? '🙂' : kidScore != null ? '😕' : '🙂'
+  const kidLabel = kidScore >= 8 ? 'Skvělé!' : kidScore >= 5 ? 'Dobrá práce!' : kidScore != null ? 'Zkusíme to příště!' : 'Dobrá práce!'
+  const lessonSteps = [
+    { key: 'start', label: 'Start', done: messages.length > 0 },
+    { key: 'chat', label: `Chat ${messageCount}/${minMessages}`, done: messageCount >= minMessages },
+    { key: 'submit', label: 'Odevzdání', done: submitted },
+    { key: 'feedback', label: 'Hodnocení', done: !!evaluation }
+  ]
+
   return (
     <div className="chat-page">
       {/* Notifications */}
@@ -351,6 +377,22 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
         </div>
         {topic.description && <p>{topic.description}</p>}
 
+        {isStudent && (
+          <div className="lesson-flow">
+            <div className="lesson-steps">
+              {lessonSteps.map(step => (
+                <div key={step.key} className={`lesson-step ${step.done ? 'done' : ''}`}>
+                  <span className="step-dot"></span>
+                  <span>{step.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="lesson-progress">
+              <div className="lesson-progress-fill" style={{ width: `${Math.round(progressRatio * 100)}%` }}></div>
+            </div>
+          </div>
+        )}
+
         {/* Conversation progress */}
         {isStudent && (
           <div className="chat-progress">
@@ -383,8 +425,26 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
         </div>
       )}
 
+      {evaluation && isStudent && (
+        <div className="kid-eval">
+          <div className="kid-eval-emoji">{kidEmoji}</div>
+          <div>
+            <div className="kid-eval-title">{kidLabel}</div>
+            <div className="kid-eval-subtitle">Lekce hotová. Skvěle!</div>
+          </div>
+        </div>
+      )}
+
       <div className="chat-messages">
-        {messages.length === 0 && !isReadOnly && (
+        {showIntro && (
+          <div className="lesson-intro">
+            <div className="lesson-intro-emoji">🚀</div>
+            <h3>Začni lekci</h3>
+            <p>Řekni nebo napiš pár jednoduchých vět. Každá zpráva se počítá.</p>
+            <button className="btn-start-lesson" onClick={startLesson}>Začít</button>
+          </div>
+        )}
+        {messages.length === 0 && !isReadOnly && !showIntro && (
           <div className="chat-welcome">
             <div className="welcome-emoji">🎉</div>
             <p>👋 Ahoj! Napiš nebo <strong>řekni nahlas</strong> svou první zprávu česky!</p>
@@ -454,6 +514,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
             {listening ? '⏺️' : '🎙️'}
           </button>
           <input
+            ref={inputRef}
             type="text"
             placeholder={listening ? '🎤 Poslouchám...' : 'Napiš nebo řekni zprávu česky...'}
             value={input}
