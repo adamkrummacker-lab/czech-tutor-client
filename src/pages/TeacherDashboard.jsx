@@ -1,5 +1,62 @@
 import { useState, useEffect, useCallback } from 'react'
 
+const A1_KIDS_TEMPLATES = [
+  {
+    title: 'Moje rodina',
+    description: 'Představ maminku, tatínka a sourozence. Kolik ti je let?',
+    level: 'A1',
+    minMessages: 8,
+    tag: 'A1 děti'
+  },
+  {
+    title: 'Moje škola',
+    description: 'Co máš ve třídě? Jaké předměty máš rád/a?',
+    level: 'A1',
+    minMessages: 8,
+    tag: 'A1 děti'
+  },
+  {
+    title: 'Zvířata',
+    description: 'Jaká zvířata znáš? Které je tvé oblíbené a proč?',
+    level: 'A1',
+    minMessages: 8,
+    tag: 'A1 děti'
+  },
+  {
+    title: 'Barvy a oblečení',
+    description: 'Jaké barvy máš rád/a? Co máš dnes na sobě?',
+    level: 'A1',
+    minMessages: 8,
+    tag: 'A1 děti'
+  },
+  {
+    title: 'Počasí',
+    description: 'Jaké je dnes počasí? Co děláš, když prší?',
+    level: 'A1',
+    minMessages: 8,
+    tag: 'A1 děti'
+  },
+  {
+    title: 'Jídlo',
+    description: 'Co jíš k snídani? Jaké jídlo máš nejradši?',
+    level: 'A1',
+    minMessages: 8,
+    tag: 'A1 děti'
+  }
+]
+
+const mergeTemplates = (remoteTemplates) => {
+  const safeRemote = Array.isArray(remoteTemplates) ? remoteTemplates : []
+  const all = [...A1_KIDS_TEMPLATES, ...safeRemote]
+  const seen = new Set()
+  return all.filter((t) => {
+    const key = `${t.title}-${t.level}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 export default function TeacherDashboard({ api, user, token, authHeaders, onOpenChat }) {
   const [topics, setTopics] = useState([])
   const [classes, setClasses] = useState([])
@@ -112,7 +169,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     const topicsData = await topicsRes.json()
     const templatesData = await templatesRes.json()
     setTopics(topicsData)
-    setTemplates(templatesData)
+    setTemplates(mergeTemplates(templatesData))
 
     localStorage.setItem(TOPICS_BACKUP_KEY, JSON.stringify(topicsData))
     localStorage.setItem(CLASSES_BACKUP_KEY, JSON.stringify(classesData))
@@ -293,6 +350,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     setTitle(t.title)
     setDescription(t.description)
     setLevel(t.level)
+    setMinMessages(t.minMessages || 10)
     setShowTemplates(false)
   }
 
@@ -696,6 +754,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
             {templates.map((t, i) => (
               <div key={i} className="template-card" onClick={() => applyTemplate(t)}>
                 <div className="template-level">{t.level}</div>
+                {t.tag && <div className="template-tag">{t.tag}</div>}
                 <h4>{t.title}</h4>
                 <p>{t.description}</p>
               </div>

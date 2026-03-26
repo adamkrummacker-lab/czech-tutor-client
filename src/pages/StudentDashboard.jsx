@@ -42,6 +42,14 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
   const cardEmojis = ['📖', '🗣️', '🎯', '🌟', '🎭', '📝']
   const xpLevel = gamification.xp < 100 ? 'Nováček' : gamification.xp < 300 ? 'Začátečník' : gamification.xp < 600 ? 'Pokročilý' : 'Expert'
   const xpProgress = Math.min((gamification.xp % 100) / 100 * 100, 100)
+  const weeklyGoal = 2
+  const completedLessons = topics.filter(t => t.submitted_at).length
+  const inProgressLessons = topics.filter(t => !t.submitted_at).length
+  const goalProgress = Math.min((completedLessons / weeklyGoal) * 100, 100)
+  const nextTopic = topics.find(t => !t.submitted_at)
+  const motivation = completedLessons >= weeklyGoal
+    ? 'Skvělá práce! Tento týden máš splněno. 🎉'
+    : `Ještě ${weeklyGoal - completedLessons} lekce do splnění týdne. Zvládneš to! 💪`
 
   return (
     <div className="dashboard student-dashboard">
@@ -58,6 +66,33 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
           <p>⚠️ Nejsi zatím přiřazen do žádné třídy. Zeptej se učitele na kód nebo ho zadej v Nastavení.</p>
         </div>
       )}
+
+      <div className="learning-goals">
+        <div className="goal-card">
+          <div className="goal-header">
+            <h3>🎯 Týdenní cíl</h3>
+            <span>{completedLessons}/{weeklyGoal} lekce</span>
+          </div>
+          <div className="goal-progress">
+            <div className="goal-fill" style={{ width: `${goalProgress}%` }}></div>
+          </div>
+          <p className="goal-message">{motivation}</p>
+        </div>
+        <div className="goal-card goal-next">
+          <div className="goal-header">
+            <h3>🚀 Další krok</h3>
+          </div>
+          {nextTopic ? (
+            <p>Pokračuj v tématu <strong>{nextTopic.title}</strong>.</p>
+          ) : (
+            <p>Všechna témata máš hotová! Zeptej se učitele na další. 🏆</p>
+          )}
+          <div className="lesson-pills">
+            <span className="lesson-pill">Rozpracované: {inProgressLessons}</span>
+            <span className="lesson-pill">Hotové: {completedLessons}</span>
+          </div>
+        </div>
+      </div>
 
       {/* Gamification Bar */}
       <div className="gamification-bar">
