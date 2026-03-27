@@ -84,6 +84,9 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [instructionLoading, setInstructionLoading] = useState(false)
   const [evaluations, setEvaluations] = useState([])
   const [showEvaluations, setShowEvaluations] = useState(false)
+  const [feedbackItems, setFeedbackItems] = useState([])
+  const [feedbackSummary, setFeedbackSummary] = useState({ average: null, total: 0 })
+  const [showFeedback, setShowFeedback] = useState(false)
   const [viewingStudents, setViewingStudents] = useState(null)
   const [assigningClassId, setAssigningClassId] = useState(null)
   const [assignMessage, setAssignMessage] = useState(null)
@@ -149,6 +152,19 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     }
   }, [api, token])
 
+  const fetchFeedback = useCallback(async () => {
+    try {
+      const res = await fetch(`${api}/api/feedback`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const data = await res.json()
+      setFeedbackItems(Array.isArray(data.items) ? data.items : [])
+      setFeedbackSummary({ average: data.average, total: data.total || 0 })
+    } catch (err) {
+      console.error('Failed to fetch feedback:', err)
+    }
+  }, [api, token])
+
   const loadData = useCallback(async () => {
     const headers = { 'Authorization': `Bearer ${token}` }
     const [topicsRes, classesRes, templatesRes] = await Promise.all([
@@ -197,12 +213,13 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
 
       await fetchAiInstructions()
       await fetchEvaluations()
+      await fetchFeedback()
     } catch (err) {
       console.error('Error fetching data:', err)
     } finally {
       setLoading(false)
     }
-  }, [loadData, restoreFromBackup, fetchAiInstructions, fetchEvaluations])
+  }, [loadData, restoreFromBackup, fetchAiInstructions, fetchEvaluations, fetchFeedback])
 
   useEffect(() => {
     fetchData()
@@ -909,6 +926,68 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
               <div className="empty-state">
                 <p>Zatím žádná hodnocení.</p>
                 <p>Hodnocení studentů se zobrazí zde po jejich dokončení konverzací.</p>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+
+      <section className="section">
+        <div className="section-header">
+          <h2>🗣️ Feedback od studentů</h2>
+          <button
+            className="btn-toggle"
+            onClick={() => setShowFeedback(!showFeedback)}
+          >
+            {showFeedback ? '✕ Skrýt' : '💬 Zobrazit feedback'}
+          </button>
+        </div>
+
+        {showFeedback && (
+          <div className="feedback-container">
+            <div className="feedback-summary">
+              <h3>📌 Souhrn</h3>
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <div className="stat-number">{feedbackSummary.total}</div>
+                  <div className="stat-label">Celkem feedbacků</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-number">
+                    {feedbackSummary.average != null ? feedbackSummary.average : '—'}
+                  </div>
+                  <div className="stat-label">Průměr (1–5)</div>
+                </div>
+              </div>
+            </div>
+
+            {feedbackItems.length > 0 && (
+              <div className="feedback-list">
+                <h3>📝 Poslední feedbacky</h3>
+                {feedbackItems.slice(0, 10).map(item => (
+                  <div key={item.id} className="feedback-card">
+                    <div className="feedback-header">
+                      <span className="feedback-topic">{item.topic_title || 'Bez tématu'}</span>
+                      <span className="feedback-date">
+                        {new Date(item.created_at).toLocaleDateString('cs-CZ')}
+                      </span>
+                    </div>
+                    <div className="feedback-student">
+                      Student: {item.student_name}
+                    </div>
+                    <div className="feedback-rating">
+                      Hodnocení: {item.rating}/5
+                    </div>
+                    {item.text && <div className="feedback-text">{item.text}</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {feedbackItems.length === 0 && (
+              <div className="empty-state">
+                <p>Zatím žádný feedback.</p>
+                <p>Studenti se objeví zde po odevzdání lekce.</p>
               </div>
             )}
           </div>
