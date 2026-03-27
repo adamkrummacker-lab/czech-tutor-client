@@ -2386,6 +2386,9 @@
 /* === VOCABULARY PAGE === */
 .vocabulary-page { max-width: 700px; margin: 0 auto; }
 .vocabulary-page h2 { margin-bottom: 1.5rem; }
+.vocab-actions {
+  display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem;
+}
 .vocab-add-form {
   display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;
 }
@@ -2397,6 +2400,29 @@
   padding: 0.6rem 1.2rem; border-radius: 8px; border: none;
   background: #22c55e; color: white; cursor: pointer; font-weight: 600;
 }
+.btn-flashcards {
+  padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid #334155;
+  background: #0f172a; color: #e2e8f0; cursor: pointer; font-weight: 600;
+}
+.btn-flashcards:disabled { opacity: 0.5; cursor: not-allowed; }
+.flashcard-panel {
+  background: #0f172a; border: 1px solid #334155; border-radius: 14px;
+  padding: 1rem; margin-bottom: 1.2rem; text-align: center;
+}
+.flashcard {
+  padding: 1.2rem 0.6rem; border-radius: 12px; background: #111b33; border: 1px solid #1f2a44;
+}
+.flashcard-word { font-size: 1.4rem; font-weight: 700; }
+.flashcard-translation { margin-top: 0.6rem; font-size: 1.1rem; color: #cbd5f5; }
+.flashcard-translation.hidden { color: #64748b; }
+.flashcard-controls {
+  display: flex; justify-content: center; gap: 0.6rem; margin-top: 0.8rem;
+}
+.flashcard-controls button {
+  padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid #334155;
+  background: #0f172a; color: #e2e8f0; cursor: pointer;
+}
+.flashcard-progress { margin-top: 0.5rem; color: #94a3b8; font-size: 0.85rem; }
 .vocab-list { display: flex; flex-direction: column; gap: 0.6rem; }
 .vocab-card {
   display: flex; align-items: center; gap: 0.6rem;
@@ -2413,6 +2439,25 @@
   background: none; border: none; color: #64748b; cursor: pointer;
   font-size: 0.9rem; padding: 0.2rem 0.4rem;
 }
+
+/* === FINAL TEST === */
+.final-test-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.2rem;
+}
+.final-test-result {
+  background: #0f172a; border: 1px solid #334155; border-radius: 12px;
+  padding: 1rem; margin: 1rem 0;
+}
+.final-score, .final-grade {
+  display: flex; justify-content: space-between; margin-bottom: 0.6rem;
+}
+.final-score-label { color: #94a3b8; font-weight: 600; }
+.final-score-value { font-size: 1.2rem; font-weight: 700; }
+.final-eval h3, .final-vocab h3 { margin: 0.6rem 0 0.4rem; }
+.final-vocab ul { margin: 0; padding-left: 1.2rem; }
+.error-text { color: #f87171; }
 .btn-vocab-delete:hover { color: #ef4444; }
 
 /* === STATS PAGE === */

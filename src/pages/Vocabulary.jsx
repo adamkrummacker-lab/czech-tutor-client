@@ -5,6 +5,10 @@ export default function Vocabulary({ api, user, token, authHeaders }) {
   const [loading, setLoading] = useState(true)
   const [newWord, setNewWord] = useState('')
   const [newTranslation, setNewTranslation] = useState('')
+  const [showFlashcards, setShowFlashcards] = useState(false)
+  const [flashcards, setFlashcards] = useState([])
+  const [cardIndex, setCardIndex] = useState(0)
+  const [showAnswer, setShowAnswer] = useState(false)
 
   const fetchWords = () => {
     fetch(`${api}/api/vocabulary`, { headers: { 'Authorization': `Bearer ${token}` } })
@@ -42,13 +46,35 @@ export default function Vocabulary({ api, user, token, authHeaders }) {
     window.speechSynthesis.speak(utterance)
   }
 
+  const startFlashcards = () => {
+    if (words.length === 0) return
+    const shuffled = [...words].sort(() => Math.random() - 0.5)
+    setFlashcards(shuffled)
+    setCardIndex(0)
+    setShowAnswer(false)
+    setShowFlashcards(true)
+  }
+
+  const nextCard = () => {
+    if (flashcards.length === 0) return
+    setCardIndex((prev) => (prev + 1) % flashcards.length)
+    setShowAnswer(false)
+  }
+
+  const prevCard = () => {
+    if (flashcards.length === 0) return
+    setCardIndex((prev) => (prev - 1 + flashcards.length) % flashcards.length)
+    setShowAnswer(false)
+  }
+
   if (loading) return <div className="loading">⏳ Načítání...</div>
 
   return (
     <div className="vocabulary-page">
       <h2>📖 Můj slovníček ({words.length} slov)</h2>
 
-      <form className="vocab-add-form" onSubmit={addWord}>
+      <div className="vocab-actions">
+        <form className="vocab-add-form" onSubmit={addWord}>
         <input
           placeholder="České slovo"
           value={newWord}
@@ -61,7 +87,36 @@ export default function Vocabulary({ api, user, token, authHeaders }) {
           onChange={e => setNewTranslation(e.target.value)}
         />
         <button type="submit">➕ Přidat</button>
-      </form>
+        </form>
+        <button className="btn-flashcards" onClick={startFlashcards} disabled={words.length === 0}>
+          🃏 Flashcards
+        </button>
+      </div>
+
+      {showFlashcards && flashcards.length > 0 && (
+        <div className="flashcard-panel">
+          <div className="flashcard">
+            <div className="flashcard-word">{flashcards[cardIndex].word}</div>
+            {showAnswer ? (
+              <div className="flashcard-translation">
+                {flashcards[cardIndex].translation || '—'}
+              </div>
+            ) : (
+              <div className="flashcard-translation hidden">Odpověď skryta</div>
+            )}
+          </div>
+          <div className="flashcard-controls">
+            <button onClick={prevCard}>◀︎</button>
+            <button onClick={() => setShowAnswer(s => !s)}>
+              {showAnswer ? 'Skrýt' : 'Ukázat'}
+            </button>
+            <button onClick={nextCard}>▶︎</button>
+          </div>
+          <div className="flashcard-progress">
+            {cardIndex + 1} / {flashcards.length}
+          </div>
+        </div>
+      )}
 
       {words.length === 0 && (
         <div className="empty-state">

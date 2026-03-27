@@ -145,7 +145,7 @@ export default function App() {
           <Stats api={API} user={user} token={token} authHeaders={authHeaders} />
         )}
         {page === 'finaltest' && (
-          <FinalTest />
+          <FinalTest api={API} token={token} topic={activeTopic} onBack={goBack} />
         )}
       </main>
     </div>
