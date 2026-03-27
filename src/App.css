@@ -1842,6 +1842,10 @@
 
 .leaderboard-name {
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .leaderboard-stats {
@@ -1849,6 +1853,14 @@
   gap: 0.6rem;
   font-size: 0.9rem;
   color: #ffffff;
+}
+.leaderboard-achievements {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+.leaderboard-achievement {
+  font-size: 1rem;
+  line-height: 1;
 }
 
 /* === VOICE FEATURES === */
@@ -2210,6 +2222,28 @@
 .badges-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 0.6rem;
 }
+.badge-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.7rem;
+}
+.badge-pick {
+  text-align: center;
+  padding: 0.6rem 0.3rem;
+  border-radius: 10px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  transition: all 0.2s;
+  color: #e2e8f0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+.badge-pick:hover { border-color: #3b82f6; transform: translateY(-2px); }
+.badge-pick.locked { opacity: 0.35; filter: grayscale(1); cursor: not-allowed; }
+.badge-pick.selected { border-color: #22c55e; box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2); }
 .badge-card {
   text-align: center; padding: 0.6rem 0.3rem; border-radius: 10px;
   background: #0f172a; border: 1px solid #334155; transition: all 0.2s;

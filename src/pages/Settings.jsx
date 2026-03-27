@@ -5,6 +5,8 @@ export default function Settings({ api, authHeaders, user, setUser }) {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
   const [messageType, setMessageType] = useState('success')
+  const [allBadges, setAllBadges] = useState([])
+  const [badgeMessage, setBadgeMessage] = useState(null)
 
   const [classInfo, setClassInfo] = useState(null)
   const [classLoading, setClassLoading] = useState(false)
@@ -28,6 +30,11 @@ export default function Settings({ api, authHeaders, user, setUser }) {
         .then(data => setClassInfo(data))
         .catch(() => setClassInfo(null))
         .finally(() => setClassLoading(false))
+
+      fetch(`${api}/api/gamification`, { headers: authHeaders() })
+        .then(r => r.json())
+        .then(data => setAllBadges(Array.isArray(data.allBadges) ? data.allBadges : []))
+        .catch(() => setAllBadges([]))
     }
   }, [user])
 
@@ -117,6 +124,22 @@ export default function Settings({ api, authHeaders, user, setUser }) {
     }
   }
 
+  const toggleBadge = (key, earned) => {
+    if (!earned) return
+    const selected = Array.isArray(prefs.profileBadges) ? prefs.profileBadges : []
+    if (selected.includes(key)) {
+      setPrefs({ ...prefs, profileBadges: selected.filter(k => k !== key) })
+      setBadgeMessage(null)
+      return
+    }
+    if (selected.length >= 3) {
+      setBadgeMessage('Můžeš vybrat maximálně 3 odznaky.')
+      return
+    }
+    setPrefs({ ...prefs, profileBadges: [...selected, key] })
+    setBadgeMessage(null)
+  }
+
   return (
     <div className="settings-page">
       <h2>⚙️ Nastavení</h2>
@@ -183,6 +206,31 @@ export default function Settings({ api, authHeaders, user, setUser }) {
             )}
 
             {classMessage && <div className={`alert ${classMessageType === 'error' ? 'alert-error' : 'alert-success'}`}>{classMessage}</div>}
+          </div>
+        )}
+
+        {user.role === 'student' && (
+          <div className="settings-card">
+            <h3>🏅 Achievements v žebříčku</h3>
+            <p className="small-note">Vyber až 3 odznaky, které se zobrazí u tebe v žebříčku třídy.</p>
+            {badgeMessage && <div className="alert alert-error">{badgeMessage}</div>}
+            <div className="badge-picker">
+              {allBadges.map(b => {
+                const selected = Array.isArray(prefs.profileBadges) && prefs.profileBadges.includes(b.key)
+                return (
+                  <button
+                    key={b.key}
+                    type="button"
+                    className={`badge-pick ${b.earned ? 'earned' : 'locked'} ${selected ? 'selected' : ''}`}
+                    onClick={() => toggleBadge(b.key, b.earned)}
+                    title={b.desc}
+                  >
+                    <span className="badge-emoji">{b.earned ? b.emoji : '🔒'}</span>
+                    <span className="badge-name">{b.name}</span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
         )}
       </div>

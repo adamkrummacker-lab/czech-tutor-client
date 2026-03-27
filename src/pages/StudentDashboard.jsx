@@ -77,7 +77,18 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
             {leaderboard.entries.map((entry, idx) => (
               <div key={entry.id} className={`leaderboard-row ${entry.id === user.id ? 'me' : ''}`}>
                 <div className="leaderboard-rank">{idx + 1}.</div>
-                <div className="leaderboard-name">{entry.name}</div>
+                <div className="leaderboard-name">
+                  <span>{entry.name}</span>
+                  {Array.isArray(entry.achievements) && entry.achievements.length > 0 && (
+                    <span className="leaderboard-achievements">
+                      {entry.achievements.map(a => (
+                        <span key={a.key} className="leaderboard-achievement" title={a.name}>
+                          {a.emoji}
+                        </span>
+                      ))}
+                    </span>
+                  )}
+                </div>
                 <div className="leaderboard-stats">
                   <span>⭐ {entry.xp} XP</span>
                   <span>🔥 {entry.streak}</span>
