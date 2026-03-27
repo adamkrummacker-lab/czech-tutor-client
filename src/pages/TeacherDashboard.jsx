@@ -562,6 +562,20 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     for (const student of studentsInClass) {
       await assignTopic(topicId, student.id)
     }
+    setAssignMessageType('success')
+    setAssignMessage('✅ Téma bylo přiřazeno třídě.')
+  }
+
+  const unassignTopicFromClass = async (topicId, classId) => {
+    if (!classId) return
+    await fetch(`${api}/api/topics/${topicId}/unassign-class`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ classId }),
+    })
+    setAssignMessageType('success')
+    setAssignMessage('🧹 Téma bylo odebráno třídě.')
+    fetchData()
   }
 
   const deleteTopic = async (topicId) => {
@@ -1100,6 +1114,13 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                     onClick={() => assignTopicToClass(topic.id, assignClassByTopic[topic.id])}
                   >
                     ➕ Přiřadit třídě
+                  </button>
+                  <button
+                    className="btn-unassign"
+                    disabled={!assignClassByTopic[topic.id]}
+                    onClick={() => unassignTopicFromClass(topic.id, assignClassByTopic[topic.id])}
+                  >
+                    ✖ Odebrat třídě
                   </button>
                 </div>
                 {topic.assignedTo.length > 0 && (
