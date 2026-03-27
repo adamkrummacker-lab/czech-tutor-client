@@ -2077,12 +2077,32 @@
 }
 
 /* === TEMPLATES === */
+.template-actions {
+  display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-bottom: 1rem;
+}
+.template-gen-controls {
+  display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;
+}
+.template-gen-controls label {
+  display: flex; align-items: center; gap: 0.4rem; color: #cbd5f5; font-size: 0.85rem;
+}
+.template-gen-controls select,
+.template-gen-controls input {
+  background: #0f172a; border: 1px solid #334155; color: #e2e8f0;
+  border-radius: 6px; padding: 0.3rem 0.5rem; font-size: 0.85rem;
+}
 .btn-templates {
-  margin-bottom: 1rem; padding: 0.5rem 1rem; border-radius: 8px;
+  padding: 0.5rem 1rem; border-radius: 8px;
   border: 1px dashed #475569; background: none; color: #60a5fa;
   cursor: pointer; font-size: 0.9rem;
 }
 .btn-templates:hover { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+.btn-templates:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-templates-ai {
+  border-style: solid; border-color: #22c55e; color: #86efac;
+}
+.btn-templates-ai:hover { border-color: #16a34a; background: rgba(34, 197, 94, 0.08); }
+.template-gen-error { color: #f87171; font-size: 0.85rem; }
 .templates-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 0.8rem; margin-bottom: 1.5rem;

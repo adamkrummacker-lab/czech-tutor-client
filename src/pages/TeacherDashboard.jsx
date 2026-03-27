@@ -94,6 +94,10 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [assignMessage, setAssignMessage] = useState(null)
   const [assignMessageType, setAssignMessageType] = useState('success')
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [templateGenLoading, setTemplateGenLoading] = useState(false)
+  const [templateGenError, setTemplateGenError] = useState(null)
+  const [templateGenLevel, setTemplateGenLevel] = useState('A2')
+  const [templateGenCount, setTemplateGenCount] = useState(1)
 
   const closeStudentView = () => setViewingStudents(null)
 
@@ -415,6 +419,29 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     setLevel(t.level)
     setMinMessages(t.minMessages || 10)
     setShowTemplates(false)
+  }
+
+  const generateTemplate = async () => {
+    setTemplateGenLoading(true)
+    setTemplateGenError(null)
+    try {
+      const res = await fetch(`${api}/api/templates/generate`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ level: templateGenLevel, count: templateGenCount })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Nepodařilo se vygenerovat šablonu')
+      const items = Array.isArray(data.items) ? data.items : []
+      if (items.length === 0) throw new Error('Nepodařilo se vygenerovat šablony')
+      const next = items.map(item => ({ ...item, tag: 'AI' }))
+      setTemplates(prev => [...next, ...prev])
+      setShowTemplates(true)
+    } catch (err) {
+      setTemplateGenError(err.message || 'Nepodařilo se vygenerovat šablonu')
+    } finally {
+      setTemplateGenLoading(false)
+    }
   }
 
   const getStudentProgress = (studentId) => {
@@ -1070,9 +1097,43 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
 
       <section className="section">
         <h2>📝 Vytvořit nové téma</h2>
-        <button className="btn-templates" onClick={() => setShowTemplates(!showTemplates)}>
-          {showTemplates ? '✕ Zavřít' : '📋 Použít šablonu'}
-        </button>
+        <div className="template-actions">
+          <button className="btn-templates" onClick={() => setShowTemplates(!showTemplates)}>
+            {showTemplates ? '✕ Zavřít' : '📋 Použít šablonu'}
+          </button>
+          <div className="template-gen-controls">
+            <label>
+              Úroveň
+              <select
+                value={templateGenLevel}
+                onChange={(e) => setTemplateGenLevel(e.target.value)}
+              >
+                {['A1', 'A2', 'B1', 'B2', 'C1'].map(l => (
+                  <option key={l} value={l}>{l}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Počet
+              <input
+                type="number"
+                min="1"
+                max="10"
+                value={templateGenCount}
+                onChange={(e) => setTemplateGenCount(Number(e.target.value) || 1)}
+              />
+            </label>
+          </div>
+          <button
+            className="btn-templates btn-templates-ai"
+            type="button"
+            onClick={generateTemplate}
+            disabled={templateGenLoading}
+          >
+            {templateGenLoading ? '⏳ Generuji...' : '✨ Vygenerovat šablonu'}
+          </button>
+          {templateGenError && <div className="template-gen-error">{templateGenError}</div>}
+        </div>
 
         {showTemplates && (
           <div className="templates-grid">
