@@ -87,6 +87,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [feedbackItems, setFeedbackItems] = useState([])
   const [feedbackSummary, setFeedbackSummary] = useState({ average: null, total: 0 })
   const [showFeedback, setShowFeedback] = useState(false)
+  const [assignClassByTopic, setAssignClassByTopic] = useState({})
   const [viewingStudents, setViewingStudents] = useState(null)
   const [assigningClassId, setAssigningClassId] = useState(null)
   const [assignMessage, setAssignMessage] = useState(null)
@@ -547,6 +548,20 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
       body: JSON.stringify({ studentId }),
     })
     fetchData()
+  }
+
+  const assignTopicToClass = async (topicId, classId) => {
+    const cls = classes.find(c => c.id === Number(classId))
+    if (!cls) return
+    const studentsInClass = cls.students || []
+    if (studentsInClass.length === 0) {
+      setAssignMessageType('error')
+      setAssignMessage('Třída nemá žádné studenty.')
+      return
+    }
+    for (const student of studentsInClass) {
+      await assignTopic(topicId, student.id)
+    }
   }
 
   const deleteTopic = async (topicId) => {
@@ -1066,17 +1081,26 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
               {topic.description && <p className="topic-desc">{topic.description}</p>}
               <div className="topic-actions">
                 <div className="assign-row">
-                  <span>Přiřadit:</span>
-                  {students.map(s => (
-                    <button
-                      key={s.id}
-                      className={`btn-assign ${topic.assignedTo.includes(s.id) ? 'assigned' : ''}`}
-                      onClick={() => assignTopic(topic.id, s.id)}
-                      disabled={topic.assignedTo.includes(s.id)}
-                    >
-                      {s.name} {topic.assignedTo.includes(s.id) ? '✓' : '+'}
-                    </button>
-                  ))}
+                  <span>Přiřadit třídě:</span>
+                  <select
+                    className="assign-class-select"
+                    value={assignClassByTopic[topic.id] || ''}
+                    onChange={(e) =>
+                      setAssignClassByTopic(prev => ({ ...prev, [topic.id]: e.target.value }))
+                    }
+                  >
+                    <option value="">Vyber třídu…</option>
+                    {classes.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                  <button
+                    className="btn-assign"
+                    disabled={!assignClassByTopic[topic.id]}
+                    onClick={() => assignTopicToClass(topic.id, assignClassByTopic[topic.id])}
+                  >
+                    ➕ Přiřadit třídě
+                  </button>
                 </div>
                 {topic.assignedTo.length > 0 && (
                   <div className="view-chats">

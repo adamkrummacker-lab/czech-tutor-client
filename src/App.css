@@ -1652,6 +1652,14 @@
 .topic-desc { color: var(--muted); margin: 0.5rem 0; font-size: 0.9rem; }
 .topic-actions { margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem; }
 .assign-row, .view-chats { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
+.assign-class-select {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
 .btn-assign {
   padding: 0.3rem 0.7rem; border-radius: 6px; border: 1px solid var(--border);
   background: var(--bg); color: var(--text); cursor: pointer; font-size: 0.8rem;
