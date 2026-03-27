@@ -20,6 +20,10 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState(null)
   const [showIntro, setShowIntro] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
+  const [feedbackRating, setFeedbackRating] = useState(null)
+  const [feedbackText, setFeedbackText] = useState('')
+  const [feedbackSent, setFeedbackSent] = useState(false)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
@@ -288,11 +292,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
           setXpNotif(`+15 XP za odevzdání! Celkem: ${data.xp} XP`)
           setTimeout(() => setXpNotif(null), 3000)
         }
-        setTimeout(() => {
-          if (window.confirm('Gratuluji k dokončení lekce! Chceš si udělat závěrečný test?')) {
-            onGoToFinalTest && onGoToFinalTest()
-          }
-        }, 500)
+        setTimeout(() => setShowFeedback(true), 400)
       } else {
         const errMsg = (data && data.error) || 'Neznámá chyba při odevzdání.'
         setSubmitError(errMsg)
@@ -304,6 +304,33 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const saveFeedback = () => {
+    const payload = {
+      topicId: topic.id,
+      topicTitle: topic.title,
+      rating: feedbackRating,
+      text: feedbackText.trim(),
+      createdAt: new Date().toISOString(),
+    }
+    try {
+      const existing = JSON.parse(window.localStorage.getItem('kamoFeedback') || '[]')
+      existing.push(payload)
+      window.localStorage.setItem('kamoFeedback', JSON.stringify(existing))
+    } catch {
+      // ignore
+    }
+    setFeedbackSent(true)
+    setTimeout(() => {
+      setShowFeedback(false)
+      setFeedbackSent(false)
+      setFeedbackRating(null)
+      setFeedbackText('')
+      if (window.confirm('Chceš si udělat závěrečný test?')) {
+        onGoToFinalTest && onGoToFinalTest()
+      }
+    }, 400)
   }
 
   const renderContent = (text, msgRole) => {
@@ -351,6 +378,46 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
                 <button type="button" onClick={() => setSelectedWord(null)}>Zrušit</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showFeedback && (
+        <div className="feedback-overlay" onClick={() => setShowFeedback(false)}>
+          <div className="feedback-modal" onClick={e => e.stopPropagation()}>
+            <h3>📝 Krátká zpětná vazba</h3>
+            <p>Jak se ti lekce líbila?</p>
+            <div className="feedback-rating">
+              {[1, 2, 3, 4, 5].map(n => (
+                <button
+                  key={n}
+                  type="button"
+                  className={`feedback-pill ${feedbackRating === n ? 'active' : ''}`}
+                  onClick={() => setFeedbackRating(n)}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+            <textarea
+              rows="3"
+              placeholder="Co se ti líbilo / nelíbilo? (volitelné)"
+              value={feedbackText}
+              onChange={e => setFeedbackText(e.target.value)}
+            />
+            <div className="feedback-actions">
+              <button type="button" className="btn-secondary" onClick={() => setShowFeedback(false)}>
+                Přeskočit
+              </button>
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={saveFeedback}
+                disabled={!feedbackRating || feedbackSent}
+              >
+                {feedbackSent ? 'Díky!' : 'Odeslat'}
+              </button>
+            </div>
           </div>
         </div>
       )}
