@@ -88,6 +88,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [assigningClassId, setAssigningClassId] = useState(null)
   const [assignMessage, setAssignMessage] = useState(null)
   const [assignMessageType, setAssignMessageType] = useState('success')
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   const closeStudentView = () => setViewingStudents(null)
 
@@ -206,6 +207,10 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   useEffect(() => {
     fetchData()
   }, [fetchData])
+
+  useEffect(() => {
+    setShowOnboarding(classes.length === 0)
+  }, [classes.length])
 
   const deleteClass = async (classId) => {
     if (!classId || typeof classId !== 'number') {
@@ -346,6 +351,29 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     } catch {
       setClassMessageType('error')
       setClassMessage('Nelze zkopírovat do schránky.')
+    }
+  }
+
+  const buildInviteText = (cls) => (
+    `Pozvánka do třídy - Czech Tutor\n` +
+    `Třída: ${cls.name}\n` +
+    `Kód třídy: ${cls.join_code}\n\n` +
+    `Postup:\n` +
+    `1) Otevři https://czech-tutor-client.vercel.app\n` +
+    `2) Klikni Registrace\n` +
+    `3) Zadej své jméno, uživatelské jméno a heslo\n` +
+    `4) Zadej kód třídy: ${cls.join_code}\n\n` +
+    `Když si nevíš rady, napiš učiteli.`
+  )
+
+  const copyInvite = async (cls) => {
+    try {
+      await navigator.clipboard.writeText(buildInviteText(cls))
+      setCopiedCode(`invite-${cls.id}`)
+      setTimeout(() => setCopiedCode(null), 2000)
+    } catch {
+      setClassMessageType('error')
+      setClassMessage('Nelze zkopírovat pozvánku.')
     }
   }
 
@@ -522,6 +550,29 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
         <h1>👋 Ahoj, {user.name}!</h1>
         <p>Spravuj třídy, zadávej úkoly a nastavuj AI instrukce pro své žáky.</p>
       </div>
+      <section className="section onboarding-section">
+        <div className="section-header">
+          <h2>🚀 První kroky</h2>
+          <button
+            className="btn-secondary"
+            onClick={() => setShowOnboarding(prev => !prev)}
+          >
+            {showOnboarding ? 'Skrýt' : 'Zobrazit'}
+          </button>
+        </div>
+        {showOnboarding && (
+          <div className="onboarding-card">
+            <ol className="onboarding-steps">
+              <li><strong>Vytvoř třídu</strong> – zadej název (např. 3.B).</li>
+              <li><strong>Pošli kód rodičům</strong> – děti se registrují přes kód třídy.</li>
+              <li><strong>Přiřaď A1 balíček</strong> – jedním klikem zadáš první lekce.</li>
+            </ol>
+            <div className="onboarding-hint">
+              Tip: Připravili jsme tisknutelnou pozvánku s návodem pro rodiče.
+            </div>
+          </div>
+        )}
+      </section>
       <section className="section">
         <h2>🏫 Moje třídy</h2>
         <form className="topic-form" onSubmit={createClass} style={{ marginBottom: '1rem' }}>
@@ -568,6 +619,13 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                         onClick={() => assignA1PackageToClass(cls)}
                       >
                         {assigningClassId === cls.id ? '⏳ A1 balíček...' : '📦 A1 balíček třídě'}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-invite"
+                        onClick={() => copyInvite(cls)}
+                      >
+                        {copiedCode === `invite-${cls.id}` ? '✅ Pozvánka zkopírována' : '🧾 Pozvánka rodičům'}
                       </button>
                       <button
                         type="button"
@@ -634,6 +692,25 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                         </button>
                       </div>
                     )}
+                  </div>
+                  <div className="invite-sheet">
+                    <div className="invite-title">Pozvánka do Czech Tutor</div>
+                    <div className="invite-line">Třída: <strong>{cls.name}</strong></div>
+                    <div className="invite-line">Kód třídy: <strong className="invite-code">{cls.join_code}</strong></div>
+                    <div className="invite-steps">
+                      <div>1) Otevři https://czech-tutor-client.vercel.app</div>
+                      <div>2) Klikni Registrace</div>
+                      <div>3) Zadej jméno, uživatelské jméno, heslo</div>
+                      <div>4) Zadej kód třídy: <strong>{cls.join_code}</strong></div>
+                    </div>
+                    <div className="invite-actions">
+                      <button type="button" className="btn-secondary" onClick={() => copyInvite(cls)}>
+                        {copiedCode === `invite-${cls.id}` ? '✅ Zkopírováno' : '📋 Kopírovat pozvánku'}
+                      </button>
+                      <button type="button" className="btn-secondary" onClick={() => window.print()}>
+                        🖨️ Tisknout
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

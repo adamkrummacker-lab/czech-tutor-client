@@ -106,6 +106,9 @@ export default function Login({ api, onLogin }) {
                   onChange={e => setClassCode(e.target.value)}
                   className="form-input"
                 />
+                <div className="form-help">
+                  Kód najdeš na pozvánce od učitele. Bez kódu se do třídy nepřipojíš.
+                </div>
               </div>
             )}
 

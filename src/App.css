@@ -2203,3 +2203,87 @@
   color: #16a34a;
   margin-bottom: 0.35rem;
 }
+
+/* === ONBOARDING + INVITES === */
+.onboarding-section .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.onboarding-card {
+  margin-top: 0.8rem;
+  padding: 1rem 1.2rem;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: rgba(59, 130, 246, 0.08);
+}
+.onboarding-steps {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--text);
+}
+.onboarding-steps li { margin-bottom: 0.4rem; }
+.onboarding-hint {
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.btn-invite {
+  padding: 0.25rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.18);
+  color: #f59e0b;
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-left: 0.6rem;
+}
+.btn-invite:hover { background: rgba(245, 158, 11, 0.28); }
+
+.invite-sheet {
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  background: var(--panel);
+}
+.invite-title {
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.invite-line { margin-bottom: 0.2rem; }
+.invite-code {
+  letter-spacing: 1px;
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  background: rgba(59, 130, 246, 0.15);
+}
+.invite-steps {
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  display: grid;
+  gap: 0.2rem;
+}
+.invite-actions {
+  margin-top: 0.8rem;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.form-help {
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+@media print {
+  body { background: #ffffff !important; }
+  .navbar, .teacher-greeting, .section-header button, .btn-logout, .btn-copy, .btn-assign-pack, .btn-invite, .btn-close-class, .students-actions, .btn-delete-class, .btn-view-students, .btn-close-students {
+    display: none !important;
+  }
+  .invite-sheet { page-break-inside: avoid; }
+}
