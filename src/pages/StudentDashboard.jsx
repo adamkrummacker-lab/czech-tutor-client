@@ -4,7 +4,6 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
   const [topics, setTopics] = useState([])
   const [gamification, setGamification] = useState({ xp: 0, streak: 0, badges: [], allBadges: [] })
   const [classInfo, setClassInfo] = useState(null)
-  const [lectures, setLectures] = useState([])
   const [leaderboard, setLeaderboard] = useState({ entries: [], class: null })
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
@@ -16,17 +15,15 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
       setLoadError(null)
       const headers = { 'Authorization': `Bearer ${token}` }
       try {
-        const [t, c, l, lb] = await Promise.all([
+        const [t, c, lb] = await Promise.all([
           fetch(`${api}/api/topics`, { headers }).then(r => r.json()),
           fetch(`${api}/api/classes/me`, { headers }).then(r => r.json()),
-          fetch(`${api}/api/my-lectures`, { headers }).then(r => r.json()),
           fetch(`${api}/api/leaderboard`, { headers }).then(r => r.json()),
         ])
         setTopics(t)
         setClassInfo(c)
         // Set default gamification data
         setGamification({ xp: 0, streak: 0, badges: [], allBadges: [] })
-        setLectures(l)
         setLeaderboard(lb)
       } catch (err) {
         setLoadError('Chyba při načítání dat. Zkus stránku obnovit.')
@@ -142,49 +139,6 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Assigned Lectures */}
-      <div className="lectures-section">
-        <h3>📚 Přiřazené přednášky</h3>
-        {lectures.length === 0 ? (
-          <div className="empty-state">
-            <p>📚 Zatím nemáte žádné přiřazené přednášky.</p>
-            <p>Tvoji učitelé ti zde brzy přiřadí studijní materiály.</p>
-          </div>
-        ) : (
-          <div className="lectures-list">
-            {lectures.map(lecture => (
-              <div key={lecture.id} className="lecture-card">
-                <div className="lecture-header">
-                  <h4>{lecture.title}</h4>
-                  {lecture.topic_title && (
-                    <span className="lecture-topic">📚 {lecture.topic_title}</span>
-                  )}
-                </div>
-                <div className="lecture-content">
-                  {lecture.content}
-                </div>
-                <div className="lecture-meta">
-                  Přiřazeno: {new Date(lecture.created_at).toLocaleDateString('cs-CZ')}
-                </div>
-                <div className="lecture-actions">
-                  <button 
-                    className="btn-chat"
-                    onClick={() => onOpenChat({
-                      id: lecture.id,
-                      title: lecture.title,
-                      description: lecture.content,
-                      level: 'assigned'
-                    })}
-                  >
-                    💬 Začít chat o přednášce
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Topics */}
