@@ -83,6 +83,12 @@ export default function App() {
     setPage('chat')
   }
 
+  const openFinalTest = (topic) => {
+    setActiveTopic(topic)
+    setViewingStudent(null)
+    setPage('finaltest')
+  }
+
   const goBack = () => {
     setPage('dashboard')
     setActiveTopic(null)
@@ -127,7 +133,7 @@ export default function App() {
           <TeacherDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} />
         )}
         {page === 'dashboard' && user.role === 'student' && (
-          <StudentDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} />
+          <StudentDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} onOpenFinalTest={openFinalTest} />
         )}
         {page === 'chat' && (
           <Chat api={API} user={user} token={token} authHeaders={authHeaders} topic={activeTopic} viewingStudent={viewingStudent} onGoToFinalTest={() => setPage('finaltest')} />

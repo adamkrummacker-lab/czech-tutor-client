@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function StudentDashboard({ api, user, token, authHeaders, onOpenChat }) {
+export default function StudentDashboard({ api, user, token, authHeaders, onOpenChat, onOpenFinalTest }) {
   const [topics, setTopics] = useState([])
   const [gamification, setGamification] = useState({ xp: 0, streak: 0, badges: [], allBadges: [] })
   const [classInfo, setClassInfo] = useState(null)
@@ -178,7 +178,18 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
               {topic.description && <p className="student-card-desc">{topic.description}</p>}
               <div className="student-card-action">
                 {topic.submitted_at ? (
-                  <><span className="submitted-dot"></span> Odevzdáno ✅</>
+                  <>
+                    <span className="submitted-dot"></span> Odevzdáno ✅
+                    <button
+                      className="btn-finaltest"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onOpenFinalTest && onOpenFinalTest(topic)
+                      }}
+                    >
+                      📝 Závěrečný test
+                    </button>
+                  </>
                 ) : (
                   <><span className="pulse-dot"></span> {topic.messageCount > 0 ? `Pokračovat (${topic.messageCount}/${topic.min_messages || 10})` : 'Začít konverzaci'} →</>
                 )}
