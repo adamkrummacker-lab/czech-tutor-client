@@ -314,23 +314,37 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
       text: feedbackText.trim(),
       createdAt: new Date().toISOString(),
     }
-    try {
-      const existing = JSON.parse(window.localStorage.getItem('kamoFeedback') || '[]')
-      existing.push(payload)
-      window.localStorage.setItem('kamoFeedback', JSON.stringify(existing))
-    } catch {
-      // ignore
-    }
-    setFeedbackSent(true)
-    setTimeout(() => {
-      setShowFeedback(false)
-      setFeedbackSent(false)
-      setFeedbackRating(null)
-      setFeedbackText('')
-      if (window.confirm('Chceš si udělat závěrečný test?')) {
-        onGoToFinalTest && onGoToFinalTest()
+    const storeLocal = () => {
+      try {
+        const existing = JSON.parse(window.localStorage.getItem('kamoFeedback') || '[]')
+        existing.push(payload)
+        window.localStorage.setItem('kamoFeedback', JSON.stringify(existing))
+      } catch {
+        // ignore
       }
-    }, 400)
+    }
+
+    fetch(`${api}/api/feedback`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ topicId: topic.id, rating: feedbackRating, text: feedbackText.trim() }),
+    })
+      .then(res => {
+        if (!res.ok) storeLocal()
+      })
+      .catch(() => storeLocal())
+      .finally(() => {
+        setFeedbackSent(true)
+        setTimeout(() => {
+          setShowFeedback(false)
+          setFeedbackSent(false)
+          setFeedbackRating(null)
+          setFeedbackText('')
+          if (window.confirm('Chceš si udělat závěrečný test?')) {
+            onGoToFinalTest && onGoToFinalTest()
+          }
+        }, 400)
+      })
   }
 
   const renderContent = (text, msgRole) => {
