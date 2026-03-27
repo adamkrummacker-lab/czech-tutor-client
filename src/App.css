@@ -1804,6 +1804,7 @@
   border: 1px solid #1f2a44;
   border-radius: 16px;
   padding: 1rem 1.2rem;
+  color: #ffffff;
 }
 
 .leaderboard-header {
@@ -1836,7 +1837,7 @@
 
 .leaderboard-rank {
   font-weight: 700;
-  color: #93c5fd;
+  color: #ffffff;
 }
 
 .leaderboard-name {
@@ -1847,7 +1848,7 @@
   display: flex;
   gap: 0.6rem;
   font-size: 0.9rem;
-  color: #cbd5f5;
+  color: #ffffff;
 }
 
 /* === VOICE FEATURES === */
