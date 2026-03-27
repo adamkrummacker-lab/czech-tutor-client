@@ -1659,6 +1659,59 @@
   font-size: 0.9rem; color: var(--text);
 }
 
+/* === LEADERBOARD === */
+.leaderboard {
+  margin: 1.2rem 0 1.8rem;
+  background: #0f172a;
+  border: 1px solid #1f2a44;
+  border-radius: 16px;
+  padding: 1rem 1.2rem;
+}
+
+.leaderboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.leaderboard-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 10px;
+  background: #111b33;
+  border: 1px solid transparent;
+}
+
+.leaderboard-row.me {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2);
+}
+
+.leaderboard-rank {
+  font-weight: 700;
+  color: #93c5fd;
+}
+
+.leaderboard-name {
+  font-weight: 600;
+}
+
+.leaderboard-stats {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: #cbd5f5;
+}
+
 /* === VOICE FEATURES === */
 .voice-info {
   margin-top: 0.5rem; padding: 0.5rem 0.8rem; border-radius: 8px;

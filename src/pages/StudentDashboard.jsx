@@ -5,6 +5,7 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
   const [gamification, setGamification] = useState({ xp: 0, streak: 0, badges: [], allBadges: [] })
   const [classInfo, setClassInfo] = useState(null)
   const [lectures, setLectures] = useState([])
+  const [leaderboard, setLeaderboard] = useState({ entries: [], class: null })
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
   const [version, setVersion] = useState(Date.now())
@@ -15,16 +16,18 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
       setLoadError(null)
       const headers = { 'Authorization': `Bearer ${token}` }
       try {
-        const [t, c, l] = await Promise.all([
+        const [t, c, l, lb] = await Promise.all([
           fetch(`${api}/api/topics`, { headers }).then(r => r.json()),
           fetch(`${api}/api/classes/me`, { headers }).then(r => r.json()),
           fetch(`${api}/api/my-lectures`, { headers }).then(r => r.json()),
+          fetch(`${api}/api/leaderboard`, { headers }).then(r => r.json()),
         ])
         setTopics(t)
         setClassInfo(c)
         // Set default gamification data
         setGamification({ xp: 0, streak: 0, badges: [], allBadges: [] })
         setLectures(l)
+        setLeaderboard(lb)
       } catch (err) {
         setLoadError('Chyba při načítání dat. Zkus stránku obnovit.')
       } finally {
@@ -64,6 +67,27 @@ export default function StudentDashboard({ api, user, token, authHeaders, onOpen
       ) : (
         <div className="student-class">
           <p>⚠️ Nejsi zatím přiřazen do žádné třídy. Zeptej se učitele na kód nebo ho zadej v Nastavení.</p>
+        </div>
+      )}
+
+      {leaderboard?.entries?.length > 0 && (
+        <div className="leaderboard">
+          <div className="leaderboard-header">
+            <h3>🏅 Žebříček třídy{leaderboard.class?.name ? ` · ${leaderboard.class.name}` : ''}</h3>
+            <span>Top {leaderboard.entries.length}</span>
+          </div>
+          <div className="leaderboard-list">
+            {leaderboard.entries.map((entry, idx) => (
+              <div key={entry.id} className={`leaderboard-row ${entry.id === user.id ? 'me' : ''}`}>
+                <div className="leaderboard-rank">{idx + 1}.</div>
+                <div className="leaderboard-name">{entry.name}</div>
+                <div className="leaderboard-stats">
+                  <span>⭐ {entry.xp} XP</span>
+                  <span>🔥 {entry.streak}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
