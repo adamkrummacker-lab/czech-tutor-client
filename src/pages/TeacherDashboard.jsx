@@ -88,6 +88,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [feedbackSummary, setFeedbackSummary] = useState({ average: null, total: 0 })
   const [showFeedback, setShowFeedback] = useState(false)
   const [assignClassByTopic, setAssignClassByTopic] = useState({})
+  const [classProgress, setClassProgress] = useState([])
   const [viewingStudents, setViewingStudents] = useState(null)
   const [assigningClassId, setAssigningClassId] = useState(null)
   const [assignMessage, setAssignMessage] = useState(null)
@@ -166,6 +167,18 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     }
   }, [api, token])
 
+  const fetchClassProgress = useCallback(async () => {
+    try {
+      const res = await fetch(`${api}/api/class-progress`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      const data = await res.json()
+      setClassProgress(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Failed to fetch class progress:', err)
+    }
+  }, [api, token])
+
   const loadData = useCallback(async () => {
     const headers = { 'Authorization': `Bearer ${token}` }
     const [topicsRes, classesRes, templatesRes] = await Promise.all([
@@ -215,12 +228,13 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
       await fetchAiInstructions()
       await fetchEvaluations()
       await fetchFeedback()
+      await fetchClassProgress()
     } catch (err) {
       console.error('Error fetching data:', err)
     } finally {
       setLoading(false)
     }
-  }, [loadData, restoreFromBackup, fetchAiInstructions, fetchEvaluations, fetchFeedback])
+  }, [loadData, restoreFromBackup, fetchAiInstructions, fetchEvaluations, fetchFeedback, fetchClassProgress])
 
   useEffect(() => {
     fetchData()
@@ -763,6 +777,37 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
             </div>
           </>
         )}
+      </section>
+
+      <section className="section">
+        <h2>📌 Přehled tříd</h2>
+        {classProgress.length === 0 && (
+          <p className="empty">Zatím žádná data o třídách.</p>
+        )}
+        <div className="class-progress-grid">
+          {classProgress.map((c) => {
+            const total = c.assignedCount || 0
+            const done = c.submittedCount || 0
+            const rate = total > 0 ? Math.round((done / total) * 100) : 0
+            return (
+              <div key={c.classId} className="class-progress-card">
+                <div className="class-progress-header">
+                  <h3>{c.className}</h3>
+                  <span>{c.studentCount} žáků</span>
+                </div>
+                <div className="class-progress-stats">
+                  <span>Přiřazeno: {c.assignedCount}</span>
+                  <span>Odevzdáno: {c.submittedCount}</span>
+                  <span>Témata: {c.topicsAssigned}</span>
+                </div>
+                <div className="class-progress-bar">
+                  <div className="class-progress-fill" style={{ width: `${rate}%` }}></div>
+                </div>
+                <div className="class-progress-rate">{rate}% hotovo</div>
+              </div>
+            )
+          })}
+        </div>
       </section>
 
       <section className="section">
