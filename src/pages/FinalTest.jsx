@@ -4,6 +4,11 @@ export default function FinalTest({ api, token, topic, onBack }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [result, setResult] = useState(null)
+  const [questions, setQuestions] = useState([])
+  const [answers, setAnswers] = useState({})
+  const [checked, setChecked] = useState(false)
+  const [score, setScore] = useState(0)
+  const [quizMessage, setQuizMessage] = useState(null)
 
   useEffect(() => {
     if (!topic?.id) {
@@ -23,6 +28,11 @@ export default function FinalTest({ api, token, topic, onBack }) {
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Nepodařilo se vyhodnotit test.')
         setResult(data)
+        const vocabRes = await fetch(`${api}/api/vocabulary`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        })
+        const vocab = await vocabRes.json()
+        buildQuiz(Array.isArray(vocab) ? vocab : [])
       } catch (err) {
         setError(err.message || 'Chyba při vyhodnocení testu.')
       } finally {
@@ -32,6 +42,38 @@ export default function FinalTest({ api, token, topic, onBack }) {
 
     run()
   }, [api, token, topic?.id])
+
+  const buildQuiz = (vocab) => {
+    const withTranslation = vocab.filter(v => v.translation && v.translation.trim())
+    if (withTranslation.length < 4) {
+      setQuizMessage('Pro test potřebuješ alespoň 4 slovíčka s překladem ve slovníčku.')
+      setQuestions([])
+      return
+    }
+    const shuffled = [...withTranslation].sort(() => Math.random() - 0.5)
+    const picked = shuffled.slice(0, 4)
+    const allTranslations = withTranslation.map(v => v.translation.trim())
+    const qs = picked.map((v, idx) => {
+      const correct = v.translation.trim()
+      const options = [correct]
+      while (options.length < 4) {
+        const candidate = allTranslations[Math.floor(Math.random() * allTranslations.length)]
+        if (candidate && !options.includes(candidate)) options.push(candidate)
+      }
+      options.sort(() => Math.random() - 0.5)
+      return { id: idx + 1, word: v.word, correct, options }
+    })
+    setQuestions(qs)
+  }
+
+  const checkQuiz = () => {
+    let points = 0
+    for (const q of questions) {
+      if (answers[q.id] === q.correct) points += 1
+    }
+    setScore(points)
+    setChecked(true)
+  }
 
   return (
     <div className="final-test-page">
@@ -68,6 +110,38 @@ export default function FinalTest({ api, token, topic, onBack }) {
               </ul>
             </div>
           )}
+        </div>
+      )}
+
+      {quizMessage && <p className="error-text">{quizMessage}</p>}
+
+      {questions.length > 0 && (
+        <div className="final-quiz">
+          <h3>🎯 Krátký test slovíček</h3>
+          {questions.map(q => (
+            <div key={q.id} className="quiz-question">
+              <div className="quiz-word">{q.id}. Co znamená „{q.word}“?</div>
+              <div className="quiz-options">
+                {q.options.map(opt => (
+                  <label key={opt} className={`quiz-option ${checked && opt === q.correct ? 'correct' : ''} ${checked && answers[q.id] === opt && opt !== q.correct ? 'wrong' : ''}`}>
+                    <input
+                      type="radio"
+                      name={`q-${q.id}`}
+                      value={opt}
+                      checked={answers[q.id] === opt}
+                      onChange={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))}
+                      disabled={checked}
+                    />
+                    {opt}
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+          <div className="quiz-actions">
+            <button onClick={checkQuiz} disabled={checked}>Vyhodnotit</button>
+            {checked && <span className="quiz-score">Skóre: {score}/{questions.length}</span>}
+          </div>
         </div>
       )}
 
