@@ -40,6 +40,7 @@ export default function Evaluations({ api, authHeaders }) {
                 <th>Datum</th>
                 <th>Téma</th>
                 <th>Skóre</th>
+                <th>Test</th>
                 <th>Známka</th>
               </tr>
             </thead>
@@ -49,6 +50,7 @@ export default function Evaluations({ api, authHeaders }) {
                   <td>{new Date(r.created_at).toLocaleString('cs-CZ', { dateStyle: 'short', timeStyle: 'short' })}</td>
                   <td>{r.topic}</td>
                   <td>{r.score ?? '-'}</td>
+                  <td>{r.quiz_score != null && r.quiz_total ? `${r.quiz_score}/${r.quiz_total}` : '-'}</td>
                   <td>{r.grade ?? '-'}</td>
                 </tr>
               ))}

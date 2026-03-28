@@ -66,13 +66,26 @@ export default function FinalTest({ api, token, topic, onBack }) {
     setQuestions(qs)
   }
 
-  const checkQuiz = () => {
+  const checkQuiz = async () => {
     let points = 0
     for (const q of questions) {
       if (answers[q.id] === q.correct) points += 1
     }
     setScore(points)
     setChecked(true)
+    if (!topic?.id) return
+    try {
+      await fetch(`${api}/api/chat/${topic.id}/quiz-score`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ score: points, total: questions.length }),
+      })
+    } catch {
+      // ignore save errors silently for now
+    }
   }
 
   return (

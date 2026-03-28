@@ -2703,6 +2703,21 @@ body, .app, .app * {
   color: var(--muted);
 }
 
+.app input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.app textarea,
+.app select {
+  background: #ffffff;
+  color: #000000;
+  border-color: #cbd5f5;
+}
+.app input::placeholder,
+.app textarea::placeholder {
+  color: #64748b;
+}
+.app select option {
+  color: #000000;
+}
+
 @media print {
   body { background: #ffffff !important; }
   .navbar, .teacher-greeting, .section-header button, .btn-logout, .btn-copy, .btn-assign-pack, .btn-invite, .btn-close-class, .students-actions, .btn-delete-class, .btn-view-students, .btn-close-students {
