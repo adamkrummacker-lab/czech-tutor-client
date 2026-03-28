@@ -58,6 +58,12 @@ const mergeTemplates = (remoteTemplates) => {
 }
 
 export default function TeacherDashboard({ api, user, token, authHeaders, onOpenChat }) {
+  const DEFAULT_AI_INSTRUCTIONS = `prosím o trénování českého jazyka pro děti ve věku 6 - 11 let, které se začínají učit český jazyk. Potřebují trénovat slovní zásobu z různých oblastí života (barvy, čísla, počasí, oblečení, jídlo, sport, koníčky, rodina atd). Dále potřebují trénovat konverzaci. Odpovídat na jednoduché otázky, případně tvořit otázky. Je potřeba jim také poskytnout zpětnou vazbu a hodnocení. V případě konverzace je potřeba mluvit, ne psát na klávesnici, to malé děti neumí nebo nezvládají dostatečně rychle.
+Velmi důležité je přizpůsobit úroveň konverzace, jsou to úplní začátečníci. Podle evropského referenčního rámce je to úroveň A0. Jsou to děti, takže často neznají složité výrazy nebo výrazy, které používají dospělí. Je potřeba slovní zásobu přizpůsobit jejich věku.
+
+Toto je právě problém většiny existujících aplikací, jako je například Duolingo. Je to spíše pro teenagery a dospělé, my hledáme aplikaci přizpůsobenou žákům prvního stupně základní školy.
+
+Neuváděj žákovi přímo vzorové odpovědi, jen naznač, o čem může mluvit.`
   const [topics, setTopics] = useState([])
   const [classes, setClasses] = useState([])
   const [students, setStudents] = useState([])
@@ -77,7 +83,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const [showAiInstructions, setShowAiInstructions] = useState(false)
   const [editingInstruction, setEditingInstruction] = useState(null)
   const [instructionForm, setInstructionForm] = useState({
-    instructions: '',
+    instructions: DEFAULT_AI_INSTRUCTIONS,
     topicId: null,
     isGlobal: false
   })
@@ -491,15 +497,12 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
     setAssignMessage(null)
     try {
       const topicsToAssign = await getOrCreateA1Topics()
-      const studentsInClass = cls.students || []
       for (const topic of topicsToAssign) {
-        for (const student of studentsInClass) {
-          await fetch(`${api}/api/topics/${topic.id}/assign`, {
-            method: 'POST',
-            headers: authHeaders(),
-            body: JSON.stringify({ studentId: student.id })
-          })
-        }
+        await fetch(`${api}/api/topics/${topic.id}/assign-class`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ classId: cls.id })
+        })
       }
       await fetchData()
       setAssignMessageType('success')
@@ -538,7 +541,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
       setClassMessage(editingInstruction ? '✅ AI instrukce aktualizovány' : '✅ AI instrukce uloženy')
       
       // Reset form
-      setInstructionForm({ instructions: '', topicId: null, isGlobal: false })
+      setInstructionForm({ instructions: DEFAULT_AI_INSTRUCTIONS, topicId: null, isGlobal: false })
       setEditingInstruction(null)
       
       // Refresh instructions
@@ -594,15 +597,11 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
   const assignTopicToClass = async (topicId, classId) => {
     const cls = classes.find(c => c.id === Number(classId))
     if (!cls) return
-    const studentsInClass = cls.students || []
-    if (studentsInClass.length === 0) {
-      setAssignMessageType('error')
-      setAssignMessage('Třída nemá žádné studenty.')
-      return
-    }
-    for (const student of studentsInClass) {
-      await assignTopic(topicId, student.id)
-    }
+    await fetch(`${api}/api/topics/${topicId}/assign-class`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ classId: cls.id })
+    })
     setAssignMessageType('success')
     setAssignMessage('✅ Téma bylo přiřazeno třídě.')
   }
@@ -909,7 +908,7 @@ export default function TeacherDashboard({ api, user, token, authHeaders, onOpen
                       type="button" 
                       onClick={() => {
                         setEditingInstruction(null)
-                        setInstructionForm({ instructions: '', topicId: null, isGlobal: false })
+                        setInstructionForm({ instructions: DEFAULT_AI_INSTRUCTIONS, topicId: null, isGlobal: false })
                       }}
                     >
                       Zrušit

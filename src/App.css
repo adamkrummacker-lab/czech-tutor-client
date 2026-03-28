@@ -2143,7 +2143,7 @@
   border-radius: 10px; font-size: 0.7rem; font-weight: 700;
 }
 .template-card h4 { font-size: 0.95rem; margin-bottom: 0.3rem; color: #ffffff; }
-.template-card p { color: #64748b; font-size: 0.8rem; }
+.template-card p { color: #ffffff; font-size: 0.8rem; }
 
 /* === EXPORT & EVALUATE === */
 .chat-header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
@@ -2551,16 +2551,16 @@ body, .app, .app * {
 
 .btn-copy {
   padding: 0.25rem 0.7rem; border-radius: 8px; border: 1px solid #475569;
-  background: none; color: #94a3b8; cursor: pointer; font-size: 0.85rem; margin-left: 0.6rem;
+  background: #3b82f6; color: #ffffff; cursor: pointer; font-size: 0.85rem; margin-left: 0.6rem;
 }
-.btn-copy:hover { border-color: #3b82f6; color: #60a5fa; }
+.btn-copy:hover { border-color: #2563eb; background: #2563eb; }
 
 .btn-assign-pack {
   padding: 0.25rem 0.7rem; border-radius: 8px; border: 1px solid #22c55e;
-  background: rgba(34, 197, 94, 0.15); color: #16a34a; cursor: pointer; font-size: 0.85rem;
+  background: #22c55e; color: #ffffff; cursor: pointer; font-size: 0.85rem;
   margin-left: 0.6rem;
 }
-.btn-assign-pack:hover { background: rgba(34, 197, 94, 0.25); }
+.btn-assign-pack:hover { background: #16a34a; }
 .btn-assign-pack:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .student-progress {
@@ -2657,13 +2657,13 @@ body, .app, .app * {
   padding: 0.25rem 0.7rem;
   border-radius: 8px;
   border: 1px solid #f59e0b;
-  background: rgba(245, 158, 11, 0.18);
-  color: #f59e0b;
+  background: #f59e0b;
+  color: #ffffff;
   cursor: pointer;
   font-size: 0.85rem;
   margin-left: 0.6rem;
 }
-.btn-invite:hover { background: rgba(245, 158, 11, 0.28); }
+.btn-invite:hover { background: #d97706; }
 
 .invite-sheet {
   margin-top: 1rem;
