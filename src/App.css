@@ -1811,17 +1811,17 @@
 /* === LEADERBOARD === */
 .leaderboard {
   margin: 1.2rem 0 1.8rem;
-  background: #0f172a;
-  border: 1px solid #1f2a44;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 1rem 1.2rem;
-  color: #ffffff;
+  color: #0f172a;
 }
 .leaderboard h3,
 .leaderboard span,
 .leaderboard div,
 .leaderboard p {
-  color: #ffffff;
+  color: #0f172a;
 }
 
 .leaderboard-header {
@@ -1843,8 +1843,8 @@
   gap: 0.6rem;
   padding: 0.5rem 0.7rem;
   border-radius: 10px;
-  background: #111b33;
-  border: 1px solid transparent;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
 }
 
 .leaderboard-row.me {
@@ -1854,7 +1854,7 @@
 
 .leaderboard-rank {
   font-weight: 700;
-  color: #ffffff;
+  color: #0f172a;
 }
 
 .leaderboard-name {
