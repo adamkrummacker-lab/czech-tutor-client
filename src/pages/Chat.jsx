@@ -30,6 +30,14 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
   const REACTION_EMOJIS = ['👍', '❤️', '😂', '🤔', '🎉']
   const recognitionRef = useRef(null)
 
+  const prefs = user?.preferences || {}
+  const ttsEnabled = prefs.ttsEnabled !== false
+  const micEnabled = prefs.micEnabled !== false
+  const preferredVoice = prefs.ttsVoice || ''
+  const uiLanguage = prefs.uiLanguage || 'cs'
+  const langMap = { cs: 'cs-CZ', de: 'de-DE', en: 'en-US' }
+  const speechLang = langMap[uiLanguage] || 'cs-CZ'
+
   const isReadOnly = user.role === 'teacher' && viewingStudent
   const isStudent = user.role === 'student'
 
@@ -68,23 +76,28 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
   }, [isStudent, isReadOnly, messages.length])
 
   const speakText = useCallback((text, msgIndex) => {
+    if (!ttsEnabled) return
     window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'cs-CZ'
+    utterance.lang = speechLang
     utterance.rate = 0.9
+    if (preferredVoice) {
+      const voice = window.speechSynthesis.getVoices().find(v => v.name === preferredVoice)
+      if (voice) utterance.voice = voice
+    }
     utterance.onstart = () => setSpeakingMsgId(msgIndex)
     utterance.onend = () => setSpeakingMsgId(null)
     utterance.onerror = () => setSpeakingMsgId(null)
     window.speechSynthesis.speak(utterance)
-  }, [])
+  }, [ttsEnabled, preferredVoice, speechLang])
 
   useEffect(() => {
-    if (!isStudent || messages.length === 0) return
+    if (!isStudent || messages.length === 0 || !ttsEnabled) return
     const last = messages[messages.length - 1]
     if (last.role === 'assistant' && !sending) {
       speakText(last.content, messages.length - 1)
     }
-  }, [messages, sending, isStudent, speakText])
+  }, [messages, sending, isStudent, ttsEnabled, speakText])
 
   useEffect(() => {
     return () => {
@@ -108,13 +121,14 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
       alert('Tvůj prohlížeč nepodporuje hlasové ovládání. Zkus Chrome.')
       return
     }
+    if (!micEnabled) return
     if (listening) {
       recognitionRef.current?.stop()
       setListening(false)
       return
     }
     const recognition = new SpeechRecognition()
-    recognition.lang = 'cs-CZ'
+    recognition.lang = speechLang
     recognition.interimResults = true
     recognition.continuous = false
     recognitionRef.current = recognition
@@ -126,7 +140,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
     recognition.onend = () => setListening(false)
     recognition.onerror = () => setListening(false)
     recognition.start()
-  }, [listening])
+  }, [listening, micEnabled, speechLang])
 
   const sendMessage = async (e) => {
     e.preventDefault()
@@ -487,7 +501,13 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
         )}
 
         {isReadOnly && <p className="read-only-badge">👁️ Prohlížíte chat žáka: {viewingStudent.name}</p>}
-        {isStudent && <div className="voice-info">🎙️ Mluv česky – klikni na mikrofon! Klikni na slovo pro uložení do slovníčku.</div>}
+        {isStudent && (
+          <div className="voice-info">
+            {micEnabled
+              ? '🎙️ Mluv česky – klikni na mikrofon! Klikni na slovo pro uložení do slovníčku.'
+              : '🎙️ Mikrofon je vypnutý v nastavení.'}
+          </div>
+        )}
       </div>
 
       {/* Evaluation */}
@@ -591,9 +611,11 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
 
       {!isReadOnly && (
         <form className="chat-input" onSubmit={sendMessage}>
-          <button type="button" className={`btn-mic ${listening ? 'active' : ''}`} onClick={toggleListening}>
-            {listening ? '⏺️' : '🎙️'}
-          </button>
+          {micEnabled && (
+            <button type="button" className={`btn-mic ${listening ? 'active' : ''}`} onClick={toggleListening}>
+              {listening ? '⏺️' : '🎙️'}
+            </button>
+          )}
           <input
             ref={inputRef}
             type="text"

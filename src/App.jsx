@@ -105,7 +105,7 @@ export default function App() {
       <nav className="navbar">
         <div className="nav-left">
           <span className="logo">👋 Kámo</span>
-          {dailyTip && <span className="daily-tip">{dailyTip}</span>}
+          {user.role === 'student' && dailyTip && <span className="daily-tip">{dailyTip}</span>}
           {page !== 'dashboard' && <button className="btn-back" onClick={goBack}>← Zpět</button>}
         </div>
         <div className="nav-right">
@@ -123,7 +123,9 @@ export default function App() {
             </>
           )}
           <button className={`nav-tab ${page === 'settings' ? 'active' : ''}`} onClick={() => setPage('settings')}>⚙️ Nastavení</button>
-          <span className="user-info">{user.preferences?.nickname || user.name}</span>
+          {user.role === 'student' && (
+            <span className="user-info">{user.preferences?.nickname || user.name}</span>
+          )}
           <button className="btn-logout" onClick={logout}>Odhlásit</button>
         </div>
       </nav>

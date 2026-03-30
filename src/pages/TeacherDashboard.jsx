@@ -636,29 +636,6 @@ Neuváděj žákovi přímo vzorové odpovědi, jen naznač, o čem může mluvi
         <h1>👋 Ahoj, {user.name}!</h1>
         <p>Spravuj třídy, zadávej úkoly a nastavuj AI instrukce pro své žáky.</p>
       </div>
-      <section className="section onboarding-section">
-        <div className="section-header">
-          <h2>🚀 První kroky</h2>
-          <button
-            className="btn-secondary"
-            onClick={() => setShowOnboarding(prev => !prev)}
-          >
-            {showOnboarding ? 'Skrýt' : 'Zobrazit'}
-          </button>
-        </div>
-        {showOnboarding && (
-          <div className="onboarding-card">
-            <ol className="onboarding-steps">
-              <li><strong>Vytvoř třídu</strong> – zadej název (např. 3.B).</li>
-              <li><strong>Pošli kód rodičům</strong> – děti se registrují přes kód třídy.</li>
-              <li><strong>Přiřaď A1 balíček</strong> – jedním klikem zadáš první lekce.</li>
-            </ol>
-            <div className="onboarding-hint">
-              Tip: Připravili jsme tisknutelnou pozvánku s návodem pro rodiče.
-            </div>
-          </div>
-        )}
-      </section>
       <section className="section">
         <h2>🏫 Moje třídy</h2>
         <form className="topic-form" onSubmit={createClass} style={{ marginBottom: '1rem' }}>
