@@ -105,6 +105,8 @@ Neuváděj žákovi přímo vzorové odpovědi, jen naznač, o čem může mluvi
   const [templateGenError, setTemplateGenError] = useState(null)
   const [templateGenLevel, setTemplateGenLevel] = useState('A2')
   const [templateGenCount, setTemplateGenCount] = useState(1)
+  const [openInviteClassId, setOpenInviteClassId] = useState(null)
+  const [openClassMenuId, setOpenClassMenuId] = useState(null)
 
   const closeStudentView = () => setViewingStudents(null)
 
@@ -671,52 +673,62 @@ Neuváděj žákovi přímo vzorové odpovědi, jen naznač, o čem může mluvi
                       <span>Kód: <strong>{cls.join_code}</strong></span>
                       <button
                         type="button"
-                        className="btn-copy"
-                        onClick={() => copyCode(cls.join_code)}
+                        className="btn-class-menu"
+                        onClick={() => setOpenClassMenuId(prev => prev === cls.id ? null : cls.id)}
                       >
-                        {copiedCode === cls.join_code ? '✅ Zkopírováno' : '📋 Kopírovat'}
+                        ⋯
                       </button>
-                      <button
-                        type="button"
-                        className="btn-assign-pack"
-                        disabled={assigningClassId === cls.id}
-                        onClick={() => assignA1PackageToClass(cls)}
-                      >
-                        {assigningClassId === cls.id ? '⏳ A1 balíček...' : '📦 A1 balíček třídě'}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-invite"
-                        onClick={() => copyInvite(cls)}
-                      >
-                        {copiedCode === `invite-${cls.id}` ? '✅ Pozvánka zkopírována' : '🧾 Pozvánka rodičům'}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-close-class"
-                        onClick={() => closeStudentView()}
-                      >
-                        ✕ Zavřít třídu
-                      </button>
+                      {openClassMenuId === cls.id && (
+                        <div className="class-menu">
+                          <button
+                            type="button"
+                            className="btn-copy"
+                            onClick={() => copyCode(cls.join_code)}
+                          >
+                            {copiedCode === cls.join_code ? '✅ Zkopírováno' : '📋 Kopírovat'}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-assign-pack"
+                            disabled={assigningClassId === cls.id}
+                            onClick={() => assignA1PackageToClass(cls)}
+                          >
+                            {assigningClassId === cls.id ? '⏳ A1 balíček...' : '📦 A1 balíček třídě'}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-invite"
+                            onClick={() => setOpenInviteClassId(prev => prev === cls.id ? null : cls.id)}
+                          >
+                            {openInviteClassId === cls.id ? '🧾 Skrýt pozvánku' : '🧾 Pozvánka rodičům'}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-close-class"
+                            onClick={() => closeStudentView()}
+                          >
+                            ✕ Zavřít třídu
+                          </button>
+                          <button
+                            className="btn-view-students"
+                            onClick={() => setViewingStudents(cls.id)}
+                          >
+                            👥 Zobrazit žáky
+                          </button>
+                          <button
+                            className="btn-delete-class"
+                            onClick={() => deleteClass(cls.id)}
+                          >
+                            🗑️ Smazat třídu
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="class-students">
                     <div className="students-header">
                       <strong>Žáci ({cls.students?.length || 0})</strong>
-                      <span className="students-actions">
-                        <button 
-                          className="btn-view-students"
-                          onClick={() => setViewingStudents(cls.id)}
-                        >
-                          👥 Zobrazit žáky
-                        </button>
-                        <button
-                          className="btn-delete-class"
-                          onClick={() => deleteClass(cls.id)}
-                        >
-                          🗑️ Smazat třídu
-                        </button>
-                      </span>
+                      <span className="students-actions"></span>
                     </div>
                     {viewingStudents === cls.id && (
                       <div className="students-list">
@@ -757,25 +769,27 @@ Neuváděj žákovi přímo vzorové odpovědi, jen naznač, o čem může mluvi
                       </div>
                     )}
                   </div>
-                  <div className="invite-sheet">
-                    <div className="invite-title">Pozvánka do Czech Tutor</div>
-                    <div className="invite-line">Třída: <strong>{cls.name}</strong></div>
-                    <div className="invite-line">Kód třídy: <strong className="invite-code">{cls.join_code}</strong></div>
-                    <div className="invite-steps">
-                      <div>1) Otevři https://czech-tutor-client.vercel.app</div>
-                      <div>2) Klikni Registrace</div>
-                      <div>3) Zadej jméno, uživatelské jméno, heslo</div>
-                      <div>4) Zadej kód třídy: <strong>{cls.join_code}</strong></div>
+                  {openInviteClassId === cls.id && (
+                    <div className="invite-sheet">
+                      <div className="invite-title">Pozvánka do Czech Tutor</div>
+                      <div className="invite-line">Třída: <strong>{cls.name}</strong></div>
+                      <div className="invite-line">Kód třídy: <strong className="invite-code">{cls.join_code}</strong></div>
+                      <div className="invite-steps">
+                        <div>1) Otevři https://czech-tutor-client.vercel.app</div>
+                        <div>2) Klikni Registrace</div>
+                        <div>3) Zadej jméno, uživatelské jméno, heslo</div>
+                        <div>4) Zadej kód třídy: <strong>{cls.join_code}</strong></div>
+                      </div>
+                      <div className="invite-actions">
+                        <button type="button" className="btn-secondary" onClick={() => copyInvite(cls)}>
+                          {copiedCode === `invite-${cls.id}` ? '✅ Zkopírováno' : '📋 Kopírovat pozvánku'}
+                        </button>
+                        <button type="button" className="btn-secondary" onClick={() => window.print()}>
+                          🖨️ Tisknout
+                        </button>
+                      </div>
                     </div>
-                    <div className="invite-actions">
-                      <button type="button" className="btn-secondary" onClick={() => copyInvite(cls)}>
-                        {copiedCode === `invite-${cls.id}` ? '✅ Zkopírováno' : '📋 Kopírovat pozvánku'}
-                      </button>
-                      <button type="button" className="btn-secondary" onClick={() => window.print()}>
-                        🖨️ Tisknout
-                      </button>
-                    </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
