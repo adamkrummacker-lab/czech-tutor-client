@@ -600,25 +600,42 @@ Neuváděj žákovi přímo vzorové odpovědi, jen naznač, o čem může mluvi
   const assignTopicToClass = async (topicId, classId) => {
     const cls = classes.find(c => c.id === Number(classId))
     if (!cls) return
-    await fetch(`${api}/api/topics/${topicId}/assign-class`, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ classId: cls.id })
-    })
-    setAssignMessageType('success')
-    setAssignMessage('✅ Téma bylo přiřazeno třídě.')
+    setAssignMessage(null)
+    try {
+      const res = await fetch(`${api}/api/topics/${topicId}/assign-class`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ classId: cls.id })
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'Nepodařilo se přiřadit téma')
+      await fetchData()
+      setAssignMessageType('success')
+      setAssignMessage('✅ Téma bylo přiřazeno třídě.')
+    } catch (err) {
+      setAssignMessageType('error')
+      setAssignMessage(err.message || '❌ Nepodařilo se přiřadit téma.')
+    }
   }
 
   const unassignTopicFromClass = async (topicId, classId) => {
     if (!classId) return
-    await fetch(`${api}/api/topics/${topicId}/unassign-class`, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ classId }),
-    })
-    setAssignMessageType('success')
-    setAssignMessage('🧹 Téma bylo odebráno třídě.')
-    fetchData()
+    setAssignMessage(null)
+    try {
+      const res = await fetch(`${api}/api/topics/${topicId}/unassign-class`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ classId }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'Nepodařilo se odebrat téma')
+      await fetchData()
+      setAssignMessageType('success')
+      setAssignMessage('🧹 Téma bylo odebráno třídě.')
+    } catch (err) {
+      setAssignMessageType('error')
+      setAssignMessage(err.message || '❌ Nepodařilo se odebrat téma.')
+    }
   }
 
   const deleteTopic = async (topicId) => {
@@ -1177,6 +1194,11 @@ Neuváděj žákovi přímo vzorové odpovědi, jen naznač, o čem může mluvi
 
       <section className="section">
         <h2>📚 Témata ({topics.length})</h2>
+        {assignMessage && (
+          <div className={`alert ${assignMessageType === 'error' ? 'alert-error' : 'alert-success'}`}>
+            {assignMessage}
+          </div>
+        )}
         {topics.length === 0 && <p className="empty">Zatím žádná témata. Vytvořte první!</p>}
         <div className="topic-list">
           {topics.map(topic => (
