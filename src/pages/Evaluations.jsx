@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 
-export default function Evaluations({ api, authHeaders }) {
+export default function Evaluations({ api, authHeaders, t }) {
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
+  const tr = t || ((key, vars) => key)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,25 +24,25 @@ export default function Evaluations({ api, authHeaders }) {
 
   return (
     <div className="evaluations-page">
-      <h2>📌 Moje hodnocení</h2>
-      {loading && <p>Načítám…</p>}
-      {!loading && rows.length === 0 && <p>Zatím žádné hodnocení.</p>}
+      <h2>{tr('evals_title')}</h2>
+      {loading && <p>{tr('evals_loading')}</p>}
+      {!loading && rows.length === 0 && <p>{tr('evals_empty')}</p>}
       {!loading && rows.length > 0 && (
         <>
           <div className="evaluation-summary">
-            <div>Průměrné skóre: {avgScore}</div>
-            <div>Průměrná známka: {avgGrade}</div>
-            <div>Počet hodnocení: {rows.length}</div>
+            <div>{tr('evals_avg_score')} {avgScore}</div>
+            <div>{tr('evals_avg_grade')} {avgGrade}</div>
+            <div>{tr('evals_total')} {rows.length}</div>
           </div>
 
           <table className="evaluations-table">
             <thead>
               <tr>
-                <th>Datum</th>
-                <th>Téma</th>
-                <th>Skóre</th>
-                <th>Test</th>
-                <th>Známka</th>
+                <th>{tr('evals_date')}</th>
+                <th>{tr('evals_topic')}</th>
+                <th>{tr('evals_score')}</th>
+                <th>{tr('evals_test')}</th>
+                <th>{tr('evals_grade')}</th>
               </tr>
             </thead>
             <tbody>

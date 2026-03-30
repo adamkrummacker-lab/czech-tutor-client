@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
 
-export default function Chat({ api, user, token, authHeaders, topic, viewingStudent, onGoToFinalTest }) {
+export default function Chat({ api, user, token, authHeaders, topic, viewingStudent, onGoToFinalTest, t }) {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
@@ -26,6 +26,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
   const [feedbackSent, setFeedbackSent] = useState(false)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
+  const tr = t || ((key, vars) => key)
 
   const REACTION_EMOJIS = ['👍', '❤️', '😂', '🤔', '🎉']
   const recognitionRef = useRef(null)
@@ -118,7 +119,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
 
   const toggleListening = useCallback(() => {
     if (!SpeechRecognition) {
-      alert('Tvůj prohlížeč nepodporuje hlasové ovládání. Zkus Chrome.')
+      alert(tr('chat_unsupported'))
       return
     }
     if (!micEnabled) return
@@ -187,8 +188,9 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
         if (data.messageCount != null) setMessageCount(data.messageCount)
         if (data.minMessages != null) setMinMessages(data.minMessages)
         // Show XP notification
-        if (data.xp) {
-          setXpNotif(`+8 XP · Celkem: ${data.xp} XP`)
+      if (data.xp) {
+          const delta = data.xpDelta || 8
+          setXpNotif(tr('chat_xp_gain', { delta, total: data.xp }))
           setTimeout(() => setXpNotif(null), 3000)
         }
         // Show badge notification
@@ -198,7 +200,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
         }
       }
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: '⚠️ Chyba při komunikaci s AI. Zkus to znovu.', timestamp: new Date().toISOString() }])
+      setMessages(prev => [...prev, { role: 'assistant', content: tr('chat_error_ai'), timestamp: new Date().toISOString() }])
     } finally {
       setSending(false)
     }
@@ -354,7 +356,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
           setFeedbackSent(false)
           setFeedbackRating(null)
           setFeedbackText('')
-          if (window.confirm('Chceš si udělat závěrečný test?')) {
+          if (window.confirm(tr('chat_submit_confirm'))) {
             onGoToFinalTest && onGoToFinalTest()
           }
         }, 400)
@@ -380,30 +382,36 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
   const progressRatio = Math.min(1, minMessages > 0 ? messageCount / minMessages : 0)
   const kidScore = evaluationData?.score
   const kidEmoji = kidScore >= 8 ? '😀' : kidScore >= 5 ? '🙂' : kidScore != null ? '😕' : '🙂'
-  const kidLabel = kidScore >= 8 ? 'Skvělé!' : kidScore >= 5 ? 'Dobrá práce!' : kidScore != null ? 'Zkusíme to příště!' : 'Dobrá práce!'
+  const kidLabel = kidScore >= 8
+    ? tr('chat_kid_great')
+    : kidScore >= 5
+      ? tr('chat_kid_good')
+      : kidScore != null
+        ? tr('chat_kid_try_next')
+        : tr('chat_kid_good')
   const lessonSteps = [
-    { key: 'start', label: 'Start', done: messages.length > 0 },
-    { key: 'chat', label: `Chat ${messageCount}/${minMessages}`, done: messageCount >= minMessages },
-    { key: 'submit', label: 'Odevzdání', done: submitted },
-    { key: 'feedback', label: 'Hodnocení', done: !!evaluation }
+    { key: 'start', label: tr('chat_lesson_steps_start'), done: messages.length > 0 },
+    { key: 'chat', label: tr('chat_lesson_steps_chat', { count: messageCount, total: minMessages }), done: messageCount >= minMessages },
+    { key: 'submit', label: tr('chat_lesson_steps_submit'), done: submitted },
+    { key: 'feedback', label: tr('chat_lesson_steps_feedback'), done: !!evaluation }
   ]
 
   return (
     <div className="chat-page">
       {/* Notifications */}
       {xpNotif && <div className="xp-notification">{xpNotif}</div>}
-      {badgeNotif && <div className="badge-notification">{badgeNotif.emoji} Nový odznak: {badgeNotif.name}!</div>}
+      {badgeNotif && <div className="badge-notification">{tr('chat_new_badge', { emoji: badgeNotif.emoji, name: badgeNotif.name })}</div>}
 
       {/* Word save popup */}
       {selectedWord && (
         <div className="word-popup-overlay" onClick={() => setSelectedWord(null)}>
           <div className="word-popup" onClick={e => e.stopPropagation()}>
-            <h4>📖 Uložit slovo: <strong>{selectedWord}</strong></h4>
+            <h4>{tr('chat_word_save_title', { word: selectedWord })}</h4>
             <form onSubmit={e => { e.preventDefault(); saveWord(e.target.translation.value) }}>
-              <input name="translation" placeholder="Překlad (volitelné)" autoFocus />
+              <input name="translation" placeholder={tr('chat_word_translation_placeholder')} autoFocus />
               <div className="word-popup-buttons">
-                <button type="submit">💾 Uložit do slovníčku</button>
-                <button type="button" onClick={() => setSelectedWord(null)}>Zrušit</button>
+                <button type="submit">{tr('chat_word_save')}</button>
+                <button type="button" onClick={() => setSelectedWord(null)}>{tr('chat_cancel')}</button>
               </div>
             </form>
           </div>
@@ -413,8 +421,8 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
       {showFeedback && (
         <div className="feedback-overlay" onClick={() => setShowFeedback(false)}>
           <div className="feedback-modal" onClick={e => e.stopPropagation()}>
-            <h3>📝 Krátká zpětná vazba</h3>
-            <p>Jak se ti lekce líbila?</p>
+            <h3>{tr('chat_feedback_title')}</h3>
+            <p>{tr('chat_feedback_prompt')}</p>
             <div className="feedback-rating">
               {[1, 2, 3, 4, 5].map(n => (
                 <button
@@ -429,13 +437,13 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
             </div>
             <textarea
               rows="3"
-              placeholder="Co se ti líbilo / nelíbilo? (volitelné)"
+              placeholder={tr('chat_feedback_placeholder')}
               value={feedbackText}
               onChange={e => setFeedbackText(e.target.value)}
             />
             <div className="feedback-actions">
               <button type="button" className="btn-secondary" onClick={() => setShowFeedback(false)}>
-                Přeskočit
+                {tr('chat_feedback_skip')}
               </button>
               <button
                 type="button"
@@ -443,7 +451,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
                 onClick={saveFeedback}
                 disabled={!feedbackRating || feedbackSent}
               >
-                {feedbackSent ? 'Díky!' : 'Odeslat'}
+                {feedbackSent ? tr('chat_feedback_thanks') : tr('chat_feedback_send')}
               </button>
             </div>
           </div>
@@ -458,16 +466,16 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
             <button className="btn-secondary" onClick={exportChat}>📥 Export</button>
             {messages.length >= 4 && (
               <button className="btn-evaluate" onClick={evaluate} disabled={evaluating}>
-                {evaluating ? '⏳ Hodnotím...' : '📊 Hodnocení'}
+                {evaluating ? tr('chat_header_evaluating') : tr('chat_header_evaluate')}
               </button>
             )}
             {submitError && <div className="submit-error">⚠️ {submitError}</div>}
             {isStudent && !submitted && messageCount >= minMessages && (
               <button className="btn-submit" onClick={submitWork} disabled={submitting}>
-                {submitting ? '⏳...' : '✅ Odevzdat práci'}
+                {submitting ? tr('chat_submitting') : tr('chat_submit')}
               </button>
             )}
-            {submitted && <span className="submitted-badge">✅ Odevzdáno</span>}
+            {submitted && <span className="submitted-badge">{tr('chat_submitted')}</span>}
           </div>
         </div>
         {topic.description && <p>{topic.description}</p>}
@@ -492,7 +500,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
         {isStudent && (
           <div className="chat-progress">
             <div className="chat-progress-label">
-              📝 {messageCount}/{minMessages} zpráv {messageCount >= minMessages ? '— Můžeš odevzdat!' : `— Zbývá ${minMessages - messageCount}`}
+              📝 {messageCount}/{minMessages} {messageCount >= minMessages ? tr('chat_progress_label_done') : tr('chat_progress_label_left', { left: minMessages - messageCount })}
             </div>
             <div className="chat-progress-bar">
               <div className="chat-progress-fill" style={{ width: `${Math.min(100, (messageCount / minMessages) * 100)}%` }}></div>
@@ -500,12 +508,12 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
           </div>
         )}
 
-        {isReadOnly && <p className="read-only-badge">👁️ Prohlížíte chat žáka: {viewingStudent.name}</p>}
+        {isReadOnly && <p className="read-only-badge">{tr('chat_readonly', { name: viewingStudent.name })}</p>}
         {isStudent && (
           <div className="voice-info">
             {micEnabled
-              ? '🎙️ Mluv česky – klikni na mikrofon! Klikni na slovo pro uložení do slovníčku.'
-              : '🎙️ Mikrofon je vypnutý v nastavení.'}
+              ? tr('chat_voice_info_on')
+              : tr('chat_voice_info_off')}
           </div>
         )}
       </div>
@@ -514,12 +522,12 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
       {evaluation && (
         <div className="evaluation-card">
           <div className="eval-header">
-            <h3>📊 Hodnocení konverzace</h3>
+            <h3>{tr('chat_eval_title')}</h3>
             <button onClick={() => setEvaluation(null)}>✕</button>
           </div>
           {evaluationData?.grade != null && (
             <div className="eval-grade">
-              <strong>Známka:</strong> {evaluationData.grade} / 5&nbsp;·&nbsp;<strong>Skóre:</strong> {evaluationData.score}/10
+              <strong>{tr('chat_grade_label')}</strong> {evaluationData.grade} / 5&nbsp;·&nbsp;<strong>{tr('chat_score_label')}</strong> {evaluationData.score}/10
             </div>
           )}
           <div className="eval-content">{evaluation}</div>
@@ -531,7 +539,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
           <div className="kid-eval-emoji">{kidEmoji}</div>
           <div>
             <div className="kid-eval-title">{kidLabel}</div>
-            <div className="kid-eval-subtitle">Lekce hotová. Skvěle!</div>
+            <div className="kid-eval-subtitle">{tr('chat_kid_subtitle')}</div>
           </div>
         </div>
       )}
@@ -540,20 +548,20 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
         {showIntro && (
           <div className="lesson-intro">
             <div className="lesson-intro-emoji">🚀</div>
-            <h3>Začni lekci</h3>
-            <p>Řekni nebo napiš pár jednoduchých vět. Každá zpráva se počítá.</p>
-            <button className="btn-start-lesson" onClick={startLesson}>Začít</button>
+            <h3>{tr('chat_intro_title')}</h3>
+            <p>{tr('chat_intro_body')}</p>
+            <button className="btn-start-lesson" onClick={startLesson}>{tr('chat_intro_start')}</button>
           </div>
         )}
         {messages.length === 0 && !isReadOnly && !showIntro && (
           <div className="chat-welcome">
             <div className="welcome-emoji">🎉</div>
-            <p>👋 Ahoj! Napiš nebo <strong>řekni nahlas</strong> svou první zprávu česky!</p>
-            <p>Neboj se chyb – jsem tu, abych ti pomohl! 💪</p>
+            <p>{tr('chat_welcome_title')}</p>
+            <p>{tr('chat_welcome_body')}</p>
           </div>
         )}
         {messages.length === 0 && isReadOnly && (
-          <div className="chat-welcome"><p>Žák zatím nenapsal žádnou zprávu.</p></div>
+          <div className="chat-welcome"><p>{tr('chat_readonly_empty')}</p></div>
         )}
         {messages.map((msg, i) => (
           <div key={i} className={`message ${msg.role}`}>
@@ -592,7 +600,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
                       {speakingMsgId === i ? '⏹️' : '🔊'}
                     </button>
                     <button className="btn-retry" onClick={() => retryMessage(msg.id)}>
-                      🔁 Zopakovat
+                      {tr('chat_retry')}
                     </button>
                   </>
                 )}
@@ -619,7 +627,7 @@ export default function Chat({ api, user, token, authHeaders, topic, viewingStud
           <input
             ref={inputRef}
             type="text"
-            placeholder={listening ? '🎤 Poslouchám...' : 'Napiš nebo řekni zprávu česky...'}
+            placeholder={listening ? tr('chat_listening') : tr('chat_placeholder')}
             value={input}
             onChange={e => setInput(e.target.value)}
             disabled={sending}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { getTranslator } from './i18n'
 import FinalTest from './pages/FinalTest'
 import Login from './pages/Login'
 import TeacherDashboard from './pages/TeacherDashboard'
@@ -20,6 +21,8 @@ export default function App() {
   const [dailyTip, setDailyTip] = useState(null)
 
   const token = user?.token
+  const uiLanguage = user?.preferences?.uiLanguage || 'cs'
+  const t = getTranslator(uiLanguage)
 
   const authHeaders = () => ({
     'Content-Type': 'application/json',
@@ -106,48 +109,48 @@ export default function App() {
         <div className="nav-left">
           <span className="logo">👋 Kámo</span>
           {user.role === 'student' && dailyTip && <span className="daily-tip">{dailyTip}</span>}
-          {page !== 'dashboard' && <button className="btn-back" onClick={goBack}>← Zpět</button>}
+          {page !== 'dashboard' && <button className="btn-back" onClick={goBack}>{t('nav_back')}</button>}
         </div>
         <div className="nav-right">
           {user.role === 'student' && (
             <>
-              <button className={`nav-tab ${page === 'dashboard' ? 'active' : ''}`} onClick={() => setPage('dashboard')}>🎮 Témata</button>
-              <button className={`nav-tab ${page === 'vocabulary' ? 'active' : ''}`} onClick={() => setPage('vocabulary')}>📖 Slovníček</button>
-              <button className={`nav-tab ${page === 'evaluations' ? 'active' : ''}`} onClick={() => setPage('evaluations')}>📌 Hodnocení</button>
+              <button className={`nav-tab ${page === 'dashboard' ? 'active' : ''}`} onClick={() => setPage('dashboard')}>{t('nav_topics')}</button>
+              <button className={`nav-tab ${page === 'vocabulary' ? 'active' : ''}`} onClick={() => setPage('vocabulary')}>{t('nav_vocab')}</button>
+              <button className={`nav-tab ${page === 'evaluations' ? 'active' : ''}`} onClick={() => setPage('evaluations')}>{t('nav_evals')}</button>
             </>
           )}
           {user.role === 'teacher' && (
             <>
-              <button className={`nav-tab ${page === 'dashboard' ? 'active' : ''}`} onClick={() => setPage('dashboard')}>📚 Témata</button>
-              <button className={`nav-tab ${page === 'stats' ? 'active' : ''}`} onClick={() => setPage('stats')}>📊 Statistiky</button>
+              <button className={`nav-tab ${page === 'dashboard' ? 'active' : ''}`} onClick={() => setPage('dashboard')}>📚 {t('nav_topics').replace('🎮 ', '')}</button>
+              <button className={`nav-tab ${page === 'stats' ? 'active' : ''}`} onClick={() => setPage('stats')}>{t('nav_stats')}</button>
             </>
           )}
-          <button className={`nav-tab ${page === 'settings' ? 'active' : ''}`} onClick={() => setPage('settings')}>⚙️ Nastavení</button>
+          <button className={`nav-tab ${page === 'settings' ? 'active' : ''}`} onClick={() => setPage('settings')}>{t('nav_settings')}</button>
           {user.role === 'student' && (
             <span className="user-info">{user.preferences?.nickname || user.name}</span>
           )}
-          <button className="btn-logout" onClick={logout}>Odhlásit</button>
+          <button className="btn-logout" onClick={logout}>{t('nav_logout')}</button>
         </div>
       </nav>
 
       <main className="main">
         {page === 'dashboard' && user.role === 'teacher' && (
-          <TeacherDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} />
+          <TeacherDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} t={t} />
         )}
         {page === 'dashboard' && user.role === 'student' && (
-          <StudentDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} onOpenFinalTest={openFinalTest} />
+          <StudentDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} onOpenFinalTest={openFinalTest} t={t} />
         )}
         {page === 'chat' && (
-          <Chat api={API} user={user} token={token} authHeaders={authHeaders} topic={activeTopic} viewingStudent={viewingStudent} onGoToFinalTest={() => setPage('finaltest')} />
+          <Chat api={API} user={user} token={token} authHeaders={authHeaders} topic={activeTopic} viewingStudent={viewingStudent} onGoToFinalTest={() => setPage('finaltest')} t={t} />
         )}
         {page === 'vocabulary' && (
           <Vocabulary api={API} user={user} token={token} authHeaders={authHeaders} />
         )}
         {page === 'evaluations' && (
-          <Evaluations api={API} authHeaders={authHeaders} />
+          <Evaluations api={API} authHeaders={authHeaders} t={t} />
         )}
         {page === 'settings' && (
-          <Settings api={API} authHeaders={authHeaders} user={user} setUser={setUser} />
+          <Settings api={API} authHeaders={authHeaders} user={user} setUser={setUser} t={t} />
         )}
         {page === 'stats' && (
           <Stats api={API} user={user} token={token} authHeaders={authHeaders} />

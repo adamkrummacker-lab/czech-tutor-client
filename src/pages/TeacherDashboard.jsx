@@ -57,13 +57,14 @@ const mergeTemplates = (remoteTemplates) => {
   })
 }
 
-export default function TeacherDashboard({ api, user, token, authHeaders, onOpenChat }) {
+export default function TeacherDashboard({ api, user, token, authHeaders, onOpenChat, t }) {
   const DEFAULT_AI_INSTRUCTIONS = `prosím o trénování českého jazyka pro děti ve věku 6 - 11 let, které se začínají učit český jazyk. Potřebují trénovat slovní zásobu z různých oblastí života (barvy, čísla, počasí, oblečení, jídlo, sport, koníčky, rodina atd). Dále potřebují trénovat konverzaci. Odpovídat na jednoduché otázky, případně tvořit otázky. Je potřeba jim také poskytnout zpětnou vazbu a hodnocení. V případě konverzace je potřeba mluvit, ne psát na klávesnici, to malé děti neumí nebo nezvládají dostatečně rychle.
 Velmi důležité je přizpůsobit úroveň konverzace, jsou to úplní začátečníci. Podle evropského referenčního rámce je to úroveň A0. Jsou to děti, takže často neznají složité výrazy nebo výrazy, které používají dospělí. Je potřeba slovní zásobu přizpůsobit jejich věku.
 
 Toto je právě problém většiny existujících aplikací, jako je například Duolingo. Je to spíše pro teenagery a dospělé, my hledáme aplikaci přizpůsobenou žákům prvního stupně základní školy.
 
 Neuváděj žákovi přímo vzorové odpovědi, jen naznač, o čem může mluvit.`
+  const tr = t || ((key, vars) => key)
   const [topics, setTopics] = useState([])
   const [classes, setClasses] = useState([])
   const [students, setStudents] = useState([])
@@ -634,7 +635,7 @@ Neuváděj žákovi přímo vzorové odpovědi, jen naznač, o čem může mluvi
     <div className="dashboard">
       <div className="teacher-greeting">
         <h1>👋 Ahoj, {user.name}!</h1>
-        <p>Spravuj třídy, zadávej úkoly a nastavuj AI instrukce pro své žáky.</p>
+        <p>{tr('teacher_greeting')}</p>
       </div>
       <section className="section">
         <h2>🏫 Moje třídy</h2>
