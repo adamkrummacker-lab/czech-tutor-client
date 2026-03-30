@@ -1817,6 +1817,12 @@
   padding: 1rem 1.2rem;
   color: #ffffff;
 }
+.leaderboard h3,
+.leaderboard span,
+.leaderboard div,
+.leaderboard p {
+  color: #ffffff;
+}
 
 .leaderboard-header {
   display: flex;
@@ -2203,10 +2209,11 @@
   background: linear-gradient(135deg, #1e293b, #172033);
   border: 1px solid #8b5cf6; border-radius: 12px;
   padding: 1.2rem; margin-bottom: 1rem;
+  color: #ffffff;
 }
-.eval-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+.eval-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; color: #ffffff; font-weight: 700; }
 .eval-header button { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.1rem; }
-.eval-content { color: #cbd5e1; font-size: 0.9rem; line-height: 1.7; white-space: pre-wrap; }
+.eval-content { color: #ffffff; font-size: 0.95rem; line-height: 1.7; white-space: pre-wrap; font-weight: 600; }
 
 /* === GAMIFICATION === */
 .gamification-bar {
