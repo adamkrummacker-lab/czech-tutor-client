@@ -19,59 +19,56 @@
 }
 
 [data-role="teacher"] {
-  --bg: #0f172a; /* tmavě navy základ */
-  --panel: #1e293b;
-  --border: #334155;
-  --text: #e2e8f0;
-  --muted: #94a3b8;
-  --muted2: #cbd5e1;
-  --accent: #60a5fa;
-  --danger: #f97316;
-  --success: #22c55e;
+  --bg: #f8fafc; /* světlý základ */
+  --panel: #ffffff;
+  --border: #e2e8f0;
+  --text: #3b82f6; /* zářivá modrá z login title */
+  --muted: #64748b;
+  --muted2: #94a3b8;
+  --accent: #3b82f6;
+  --danger: #ef4444;
+  --success: #16a34a;
 
   --bubble-user: rgba(37, 99, 235, 0.85);
   --bubble-user-text: #ffffff;
   --bubble-assistant: #ffffff;
   --bubble-assistant-text: #000000;
   --bubble-border: rgba(96, 165, 250, 0.6);
-  --input-bg: #1e293b;
-  --input-text: #e2e8f0;
-
-  --panel: #1e293b;
-  --border: #334155;
+  --input-bg: #ffffff;
+  --input-text: #0f172a;
 }
 
 
 [data-role="teacher"] .gamification-bar {
-  background: #111b2f;
-  border: 1px solid #334155;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
 }
 
 [data-role="teacher"] .xp-label,
 [data-role="teacher"] .streak-label,
 [data-role="teacher"] .streak-count {
-  color: #e2e8f0;
+  color: #3b82f6;
 }
 
 [data-role="teacher"] .badges-section {
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
 }
 
 [data-role="teacher"] .badge-card {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
 }
 
 [data-role="teacher"] .badge-card.earned {
-  border-color: #60a5fa;
-  background: rgba(96, 165, 250, 0.15);
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.12);
 }
 
 [data-role="teacher"] .xp-notification,
 [data-role="teacher"] .badge-notification {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  color: #e2e8f0;
+  background: linear-gradient(135deg, #eff6ff, #ffffff);
+  color: #3b82f6;
 }
 
 [data-role="teacher"] .btn-level,
@@ -81,9 +78,9 @@
 [data-role="teacher"] .btn-export,
 [data-role="teacher"] .btn-logout,
 [data-role="teacher"] .btn-submit {
-  background: #1e293b !important;
-  border: 1px solid #334155 !important;
-  color: #e2e8f0 !important;
+  background: #ffffff !important;
+  border: 1px solid #bfdbfe !important;
+  color: #3b82f6 !important;
 }
 
 [data-role="teacher"] .btn-level:hover,
@@ -93,33 +90,33 @@
 [data-role="teacher"] .btn-export:hover,
 [data-role="teacher"] .btn-logout:hover,
 [data-role="teacher"] .btn-submit:hover {
-  background: #334155 !important;
-  color: #ffffff !important;
-  border-color: #60a5fa !important;
+  background: #eff6ff !important;
+  color: #2563eb !important;
+  border-color: #93c5fd !important;
 }
 
 [data-role="teacher"] .btn-logout {
-  background: #334155 !important;
-  color: #e2e8f0 !important;
-  border: 1px solid #334155 !important;
+  background: #ffffff !important;
+  color: #3b82f6 !important;
+  border: 1px solid #bfdbfe !important;
 }
 
 [data-role="teacher"] .btn-logout:hover {
-  background: #1e293b !important;
+  background: #eff6ff !important;
 }
 
 
 [data-role="teacher"] .navbar {
-  background: linear-gradient(90deg, #0f172a, #1e293b);
-  border-bottom: 1px solid #334155;
+  background: linear-gradient(90deg, #ffffff, #eff6ff);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 [data-role="teacher"] .teacher-dashboard .class-card,
 [data-role="teacher"] .teacher-dashboard .topic-card,
 [data-role="teacher"] .teacher-dashboard .lectures-list .lecture-card {
-  background: #1e293b;
-  border: 1px solid #334155;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
 }
 
 [data-role="teacher"] .teacher-dashboard h2,
@@ -136,12 +133,12 @@
 [data-role="teacher"] .dashboard h3,
 [data-role="teacher"] .teacher-greeting h1,
 [data-role="teacher"] .teacher-greeting p {
-  color: #ffffff !important;
+  color: #3b82f6 !important;
 }
 
 [data-role="teacher"] .ai-instructions-container h3,
 [data-role="teacher"] .ai-instructions-container label {
-  color: #0f172a !important;
+  color: #3b82f6 !important;
 }
 
 [data-role="teacher"] .btn-primary {
@@ -1776,13 +1773,16 @@
   margin-left: 0.4rem;
   padding: 0.3rem 0.6rem;
   border-radius: 8px;
-  border: 1px solid #334155;
-  background: #0f172a;
-  color: #e2e8f0;
+  border: 1px solid #94a3b8;
+  background: #ffffff;
+  color: #0f172a;
   font-size: 0.75rem;
   cursor: pointer;
 }
-.btn-finaltest:hover { border-color: #3b82f6; }
+.btn-finaltest:hover {
+  border-color: #3b82f6;
+  background: #e2e8f0;
+}
 .pulse-dot {
   width: 8px; height: 8px; border-radius: 50%;
   background: var(--card-color, #3b82f6);
