@@ -2508,20 +2508,20 @@ body, .app, .app * {
 }
 
 body, .app {
-  font-size: 17px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 h1, h2, h3 {
-  font-weight: 700;
+  font-weight: 800;
 }
 
 button,
 input,
 select,
 textarea {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
 }
 
 .ai-instructions-container select,
