@@ -2502,8 +2502,9 @@
 }
 .quiz-score { font-weight: 700; }
 
-/* === FORCE BLACK TEXT === */
-body, .app, .app * {
+/* === FORCE BLACK TEXT (student only) === */
+[data-role="student"],
+[data-role="student"] * {
   color: #000 !important;
 }
 
