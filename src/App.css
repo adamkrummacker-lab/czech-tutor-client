@@ -2745,6 +2745,55 @@ textarea {
   color: #000000;
 }
 
+/* === ADMIN DASHBOARD === */
+.admin-dashboard .section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem;
+  margin-bottom: 1.2rem;
+}
+.admin-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+.admin-form input {
+  flex: 1;
+  min-width: 180px;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+}
+.admin-message {
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.admin-message.ok { background: #e8f7ee; color: #166534; }
+.admin-message.error { background: #fee2e2; color: #991b1b; }
+.admin-teachers {
+  display: grid;
+  gap: 0.8rem;
+}
+.admin-teacher-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+.admin-teacher-meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 @media print {
   body { background: #ffffff !important; }
   .navbar, .teacher-greeting, .section-header button, .btn-logout, .btn-copy, .btn-assign-pack, .btn-invite, .btn-close-class, .students-actions, .btn-delete-class, .btn-view-students, .btn-close-students {

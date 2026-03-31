@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { getTranslator } from './i18n'
 import FinalTest from './pages/FinalTest'
 import Login from './pages/Login'
+import AdminDashboard from './pages/AdminDashboard'
 import TeacherDashboard from './pages/TeacherDashboard'
 import StudentDashboard from './pages/StudentDashboard'
 import Chat from './pages/Chat'
@@ -55,8 +56,8 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const isTeacher = user?.role === 'teacher'
-    const theme = isTeacher ? 'light' : (user?.preferences?.theme || 'dark')
+    const isTeacherLike = user?.role === 'teacher' || user?.role === 'admin'
+    const theme = isTeacherLike ? 'light' : (user?.preferences?.theme || 'dark')
     document.documentElement.setAttribute('data-theme', theme)
   }, [user?.role, user?.preferences?.theme])
 
@@ -65,8 +66,15 @@ export default function App() {
       document.documentElement.removeAttribute('data-role')
       return
     }
-    document.documentElement.setAttribute('data-role', user.role)
+    const roleForCss = user.role === 'admin' ? 'teacher' : user.role
+    document.documentElement.setAttribute('data-role', roleForCss)
   }, [user?.role])
+
+  useEffect(() => {
+    if (user?.role === 'admin' && page === 'dashboard') {
+      setPage('admin')
+    }
+  }, [user?.role, page])
 
   useEffect(() => {
     if (!token) return
@@ -112,6 +120,11 @@ export default function App() {
           {page !== 'dashboard' && <button className="btn-back" onClick={goBack}>{t('nav_back')}</button>}
         </div>
         <div className="nav-right">
+          {user.role === 'admin' && (
+            <button className={`nav-tab ${page === 'admin' ? 'active' : ''}`} onClick={() => setPage('admin')}>
+              {t('nav_admin')}
+            </button>
+          )}
           {user.role === 'student' && (
             <>
               <button className={`nav-tab ${page === 'dashboard' ? 'active' : ''}`} onClick={() => setPage('dashboard')}>{t('nav_topics')}</button>
@@ -136,6 +149,9 @@ export default function App() {
       <main className="main">
         {page === 'dashboard' && user.role === 'teacher' && (
           <TeacherDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} t={t} />
+        )}
+        {page === 'admin' && user.role === 'admin' && (
+          <AdminDashboard api={API} token={token} t={t} onLogout={logout} />
         )}
         {page === 'dashboard' && user.role === 'student' && (
           <StudentDashboard api={API} user={user} token={token} authHeaders={authHeaders} onOpenChat={openChat} onOpenFinalTest={openFinalTest} t={t} />
