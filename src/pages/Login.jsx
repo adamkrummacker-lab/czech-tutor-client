@@ -3,6 +3,7 @@ import { useState } from 'react'
 export default function Login({ api, onLogin }) {
   const [isRegister, setIsRegister] = useState(false)
   const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [classCode, setClassCode] = useState('')
@@ -16,7 +17,7 @@ export default function Login({ api, onLogin }) {
     try {
       const url = isRegister ? `${api}/api/auth/register` : `${api}/api/auth/login`
       const body = isRegister
-        ? { username, password, name, classCode: classCode.trim() }
+        ? { username, password, name, classCode: classCode.trim(), email: email.trim() || undefined }
         : { username, password }
       const res = await fetch(url, {
         method: 'POST',
@@ -96,6 +97,22 @@ export default function Login({ api, onLogin }) {
             {isRegister && (
               <div className="form-group">
                 <label className="form-label">
+                  <span className="label-icon">📧</span>
+                  Email (volitelné)
+                </label>
+                <input
+                  type="email"
+                  placeholder="napr. ucitel@email.cz"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="form-input"
+                />
+              </div>
+            )}
+
+            {isRegister && (
+              <div className="form-group">
+                <label className="form-label">
                   <span className="label-icon">🏫</span>
                   Kód třídy
                 </label>
@@ -115,11 +132,11 @@ export default function Login({ api, onLogin }) {
             <div className="form-group">
               <label className="form-label">
                 <span className="label-icon">🆔</span>
-                Uživatelské jméno
+                Uživatelské jméno nebo email
               </label>
               <input
                 type="text"
-                placeholder="Zadej své uživatelské jméno"
+                placeholder="Zadej uživatelské jméno nebo email"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 required

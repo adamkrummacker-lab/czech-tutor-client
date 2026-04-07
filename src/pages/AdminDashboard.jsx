@@ -5,7 +5,7 @@ export default function AdminDashboard({ api, token, t, onLogout }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
-  const [form, setForm] = useState({ username: '', name: '', password: '' })
+  const [form, setForm] = useState({ username: '', name: '', email: '', password: '' })
 
   const authHeaders = () => ({
     'Content-Type': 'application/json',
@@ -43,6 +43,7 @@ export default function AdminDashboard({ api, token, t, onLogout }) {
       body: JSON.stringify({
         username: form.username.trim(),
         name: form.name.trim(),
+        email: form.email.trim() || undefined,
         password: form.password.trim() || undefined,
       }),
     })
@@ -53,7 +54,7 @@ export default function AdminDashboard({ api, token, t, onLogout }) {
     }
     const passNote = data.password ? ` ${t('admin_created_password')} ${data.password}` : ''
     setMessage(`${t('admin_created_ok')}${passNote}`)
-    setForm({ username: '', name: '', password: '' })
+    setForm({ username: '', name: '', email: '', password: '' })
     loadTeachers()
   }
 
@@ -98,6 +99,12 @@ export default function AdminDashboard({ api, token, t, onLogout }) {
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
           <input
+            type="email"
+            placeholder={t('admin_email_optional')}
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+          <input
             type="text"
             placeholder={t('admin_password_optional')}
             value={form.password}
@@ -122,6 +129,7 @@ export default function AdminDashboard({ api, token, t, onLogout }) {
                 </div>
                 <div className="admin-teacher-meta">
                   {t('admin_classes')}: {tch.class_count} · {t('admin_students')}: {tch.student_count}
+                  {tch.email ? ` · ${tch.email}` : ''}
                 </div>
                 <button className="btn-delete" onClick={() => onDelete(tch)}>
                   {t('admin_delete_btn')}
