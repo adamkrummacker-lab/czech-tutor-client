@@ -491,6 +491,22 @@
   animation: shake 0.5s ease-in-out;
 }
 
+.info-message {
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #bfdbfe;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-icon {
+  font-size: 1rem;
+}
+
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-5px); }
@@ -518,6 +534,29 @@
   margin-top: 0.5rem;
   position: relative;
   overflow: hidden;
+}
+
+.login-button.secondary {
+  background: rgba(59, 130, 246, 0.16);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  box-shadow: none;
+}
+
+.login-button.secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(59, 130, 246, 0.2);
+}
+
+.verify-actions {
+  margin-top: 0.5rem;
+}
+
+.reset-panel {
+  margin-top: 0.5rem;
+  padding: 0.8rem;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 .login-button::before {

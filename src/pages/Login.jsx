@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function Login({ api, onLogin }) {
   const [isRegister, setIsRegister] = useState(false)
@@ -8,11 +8,46 @@ export default function Login({ api, onLogin }) {
   const [name, setName] = useState('')
   const [classCode, setClassCode] = useState('')
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
+  const [needsVerification, setNeedsVerification] = useState(false)
+  const [verificationIdentifier, setVerificationIdentifier] = useState('')
+  const [showReset, setShowReset] = useState(false)
+  const [resetIdentifier, setResetIdentifier] = useState('')
+  const [resetToken, setResetToken] = useState('')
+  const [resetPassword, setResetPassword] = useState('')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get('verify') || params.get('token')
+    const reset = params.get('reset') || ''
+    if (reset) {
+      setResetToken(reset)
+      setShowReset(true)
+    }
+    if (!token) return
+    setLoading(true)
+    setError('')
+    setInfo('')
+    fetch(`${api}/api/auth/verify-email?token=${encodeURIComponent(token)}`)
+      .then(res => res.json().then(data => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) throw new Error(data.error || 'Ověření se nezdařilo')
+        setInfo('Email ověřen. Teď se můžeš přihlásit.')
+        setError('')
+        setNeedsVerification(false)
+        setVerificationIdentifier('')
+        window.history.replaceState({}, '', window.location.pathname)
+      })
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false))
+  }, [api])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    setInfo('')
+    setNeedsVerification(false)
     setLoading(true)
     try {
       const url = isRegister ? `${api}/api/auth/register` : `${api}/api/auth/login`
@@ -25,8 +60,101 @@ export default function Login({ api, onLogin }) {
         body: JSON.stringify(body),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+      if (!res.ok) {
+        if (data.needsVerification) {
+          setNeedsVerification(true)
+          setVerificationIdentifier(email.trim() || username.trim())
+        }
+        throw new Error(data.error || 'Chyba přihlášení')
+      }
+      if (data.needsVerification) {
+        setNeedsVerification(true)
+        setVerificationIdentifier(email.trim() || username.trim())
+        setInfo('Zkontroluj email a potvrď ověření. Pak se přihlas.')
+        return
+      }
       onLogin(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResendVerification = async () => {
+    const identifier = (verificationIdentifier || email || username).trim()
+    if (!identifier) {
+      setError('Zadej email nebo uživatelské jméno')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch(`${api}/api/auth/resend-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Nepodařilo se odeslat email')
+      setInfo('Ověřovací email byl znovu odeslán.')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRequestReset = async () => {
+    const identifier = (resetIdentifier || username || email).trim()
+    if (!identifier) {
+      setError('Zadej email nebo uživatelské jméno')
+      return
+    }
+    setLoading(true)
+    setError('')
+    setInfo('')
+    try {
+      const res = await fetch(`${api}/api/auth/request-password-reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Nepodařilo se odeslat email')
+      setInfo('Pokud účet existuje, poslali jsme odkaz na email.')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResetPassword = async () => {
+    if (!resetToken) {
+      setError('Chybí token pro reset hesla')
+      return
+    }
+    if (!resetPassword || resetPassword.length < 4) {
+      setError('Heslo musí mít min. 4 znaky')
+      return
+    }
+    setLoading(true)
+    setError('')
+    setInfo('')
+    try {
+      const res = await fetch(`${api}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: resetToken, newPassword: resetPassword }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Reset se nezdařil')
+      setInfo('Heslo změněno. Teď se můžeš přihlásit.')
+      setShowReset(false)
+      setResetToken('')
+      setResetPassword('')
+      window.history.replaceState({}, '', window.location.pathname)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -77,6 +205,48 @@ export default function Login({ api, onLogin }) {
           </div>
 
           <form onSubmit={handleSubmit} className="login-form">
+            {showReset && (
+              <div className="reset-panel">
+                <div className="form-group">
+                  <label className="form-label">
+                    <span className="label-icon">📧</span>
+                    Email nebo uživatelské jméno
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Zadej email nebo uživatelské jméno"
+                    value={resetIdentifier}
+                    onChange={e => setResetIdentifier(e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+                <button type="button" className="login-button secondary" onClick={handleRequestReset} disabled={loading}>
+                  📩 Poslat odkaz pro reset
+                </button>
+              </div>
+            )}
+
+            {showReset && resetToken && (
+              <div className="reset-panel">
+                <div className="form-group">
+                  <label className="form-label">
+                    <span className="label-icon">🔑</span>
+                    Nové heslo
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Zadej nové heslo"
+                    value={resetPassword}
+                    onChange={e => setResetPassword(e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+                <button type="button" className="login-button secondary" onClick={handleResetPassword} disabled={loading}>
+                  ✅ Nastavit nové heslo
+                </button>
+              </div>
+            )}
+
             {isRegister && (
               <div className="form-group">
                 <label className="form-label">
@@ -159,10 +329,33 @@ export default function Login({ api, onLogin }) {
               />
             </div>
 
+            {info && (
+              <div className="info-message">
+                <span className="info-icon">📨</span>
+                {info}
+              </div>
+            )}
+
             {error && (
               <div className="error-message">
                 <span className="error-icon">⚠️</span>
                 {error}
+              </div>
+            )}
+
+            {needsVerification && (
+              <div className="verify-actions">
+                <button type="button" className="login-button secondary" onClick={handleResendVerification} disabled={loading}>
+                  📧 Poslat ověření znovu
+                </button>
+              </div>
+            )}
+
+            {!showReset && (
+              <div className="verify-actions">
+                <button type="button" className="login-button secondary" onClick={() => { setShowReset(true); setError(''); setInfo('') }}>
+                  🔁 Zapomenuté heslo?
+                </button>
               </div>
             )}
 
